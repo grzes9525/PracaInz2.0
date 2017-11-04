@@ -29,6 +29,11 @@ public class WelcomeActivity extends AppCompatActivity {
     private static ArrayList<WelcomeData> data;
     static View.OnClickListener myOnClickListener;
     final Context c = this;
+    private Button confirmationDiaryButton;
+    private EditText userInputDialogEditText;
+    private TextView userInputDialogTextViewTitle;
+    private TextView textViewUnit;
+    private String currentValue;
 
 
 
@@ -36,6 +41,7 @@ public class WelcomeActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_welcome);
+        confirmationDiaryButton = (Button) findViewById(R.id.buttonConfirmationDiary);
 
         myOnClickListener = new MyOnClickListener(this);
 
@@ -51,7 +57,8 @@ public class WelcomeActivity extends AppCompatActivity {
             data.add(new WelcomeData(
                     WelcomeDB.titles[i],
                     WelcomeDB.values[i],
-                    WelcomeDB.id_[i]
+                    WelcomeDB.id_[i],
+                    WelcomeDB.units[i]
 
             ));
         }
@@ -71,8 +78,9 @@ public class WelcomeActivity extends AppCompatActivity {
             this.context = context;
         }
 
+
         @Override
-        public void onClick(View v) {
+        public void onClick(final View v) {
 
             ///////
             LayoutInflater layoutInflaterAndroid = LayoutInflater.from(c);
@@ -80,19 +88,28 @@ public class WelcomeActivity extends AppCompatActivity {
             AlertDialog.Builder alertDialogBuilderUserInput = new AlertDialog.Builder(c);
             alertDialogBuilderUserInput.setView(mView);
 
-            final EditText userInputDialogEditText = (EditText) mView.findViewById(R.id.userInputDialog);
+            userInputDialogEditText = (EditText) mView.findViewById(R.id.userInputDialog);
+            userInputDialogTextViewTitle = (TextView) mView.findViewById(R.id.dialogTitle);
+            textViewUnit = (TextView) mView.findViewById(R.id.textViewUnit);
 
-            final TextView userInputDialogTextViewTitle = (TextView) mView.findViewById(R.id.dialogTitle);
 
             //String dialogTitle= getValue(v).keySet().toString();
             //String dialog = dialogTitle.substring(1,dialogTitle.length()-1);
             userInputDialogTextViewTitle.setText(WelcomeDB.titles[getValue(v)]);
-            userInputDialogEditText.setText(WelcomeDB.values[getValue(v)]);
+            textViewUnit.setText(WelcomeDB.units[getValue(v)]);
+            userInputDialogEditText.setText(currentValue);
             alertDialogBuilderUserInput
                     .setCancelable(false)
                     .setPositiveButton("Wstaw", new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialogBox, int id) {
                             // ToDo get user input here
+                            currentValue = String.valueOf(userInputDialogEditText.getText());
+                            RecyclerView.ViewHolder viewHolder
+                                    = recyclerView.findViewHolderForPosition(getValue(v));
+                            TextView textViewValue
+                                    = (TextView) viewHolder.itemView.findViewById(R.id.textViewValue);
+                            userInputDialogEditText.setText(currentValue);
+                            textViewValue.setText(currentValue);
 
                         }
                     })
@@ -127,6 +144,7 @@ public class WelcomeActivity extends AppCompatActivity {
 
             return selectedItemId;
         }
+
 
     }
 

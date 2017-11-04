@@ -24,7 +24,7 @@ public class WelcomeData {
         this.value = value;
     }
 
-    public WelcomeData(String title, String value, Integer integer) {
+    public WelcomeData(String title, String value, Integer integer, String unit) {
         this.title = title;
         this.value = value;
     }
