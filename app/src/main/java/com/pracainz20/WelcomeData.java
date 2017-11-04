@@ -5,6 +5,9 @@ package com.pracainz20;
  */
 
 public class WelcomeData {
+    String title;
+    String value;
+
     public String getTitle() {
         return title;
     }
@@ -26,8 +29,8 @@ public class WelcomeData {
         this.value = value;
     }
 
-    String title;
-    String value;
+
+
 
 
 }
