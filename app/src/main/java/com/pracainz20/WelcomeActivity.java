@@ -34,7 +34,9 @@ public class WelcomeActivity extends AppCompatActivity {
     private TextView userInputDialogTextViewTitle;
     private TextView textViewUnit;
     private String currentValue;
-
+    private Integer current_id;
+    private TextView textViewValue;
+    RecyclerView.ViewHolder viewHolder;
 
 
     @Override
@@ -80,9 +82,9 @@ public class WelcomeActivity extends AppCompatActivity {
 
 
         @Override
-        public void onClick(final View v) {
+        public void onClick(View v) {
 
-            ///////
+
             LayoutInflater layoutInflaterAndroid = LayoutInflater.from(c);
             View mView = layoutInflaterAndroid.inflate(R.layout.dialog_welcome, null);
             AlertDialog.Builder alertDialogBuilderUserInput = new AlertDialog.Builder(c);
@@ -90,26 +92,31 @@ public class WelcomeActivity extends AppCompatActivity {
 
             userInputDialogEditText = (EditText) mView.findViewById(R.id.userInputDialog);
             userInputDialogTextViewTitle = (TextView) mView.findViewById(R.id.dialogTitle);
-            textViewUnit = (TextView) mView.findViewById(R.id.textViewUnit);
+            textViewUnit = (TextView) mView.findViewById(R.id.dialogUnit);
 
 
             //String dialogTitle= getValue(v).keySet().toString();
             //String dialog = dialogTitle.substring(1,dialogTitle.length()-1);
             userInputDialogTextViewTitle.setText(WelcomeDB.titles[getValue(v)]);
             textViewUnit.setText(WelcomeDB.units[getValue(v)]);
-            userInputDialogEditText.setText(currentValue);
+            //userInputDialogEditText.setText(WelcomeDB.values[getValue(v)]);
+            current_id = getValue(v);
+            viewHolder
+                    = recyclerView.findViewHolderForPosition(current_id);
+            textViewValue
+                    = (TextView) viewHolder.itemView.findViewById(R.id.textViewValue);
+
             alertDialogBuilderUserInput
                     .setCancelable(false)
                     .setPositiveButton("Wstaw", new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialogBox, int id) {
-                            // ToDo get user input here
+
+
                             currentValue = String.valueOf(userInputDialogEditText.getText());
-                            RecyclerView.ViewHolder viewHolder
-                                    = recyclerView.findViewHolderForPosition(getValue(v));
-                            TextView textViewValue
-                                    = (TextView) viewHolder.itemView.findViewById(R.id.textViewValue);
-                            userInputDialogEditText.setText(currentValue);
-                            textViewValue.setText(currentValue);
+                            ////welcome DB
+                            WelcomeDB.values[current_id]=currentValue;
+                            userInputDialogEditText.setText(WelcomeDB.values[current_id]);
+                            textViewValue.setText(WelcomeDB.values[current_id]);
 
                         }
                     })
@@ -123,7 +130,7 @@ public class WelcomeActivity extends AppCompatActivity {
 
             AlertDialog alertDialogAndroid = alertDialogBuilderUserInput.create();
             alertDialogAndroid.show();
-            ////////
+
         }
 
         private Integer getValue(View v){
