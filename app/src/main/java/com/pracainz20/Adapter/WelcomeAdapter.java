@@ -1,10 +1,14 @@
-package com.pracainz20;
+package com.pracainz20.Adapter;
 
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+
+import com.pracainz20.Model.WelcomeData;
+import com.pracainz20.R;
+import com.pracainz20.Activity.WelcomeActivity;
 
 import java.util.ArrayList;
 
@@ -40,7 +44,7 @@ public class WelcomeAdapter extends RecyclerView.Adapter<WelcomeAdapter.MyViewHo
         View view = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.card_view_welcome, parent, false);
 
-        view.setOnClickListener(WelcomeActivity.myOnClickListener);
+        view.setOnClickListener(WelcomeActivity.getMyOnClickListener());
 
         MyViewHolder myViewHolder = new MyViewHolder(view);
         return myViewHolder;

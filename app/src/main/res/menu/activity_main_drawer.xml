@@ -3,34 +3,45 @@
 
     <group android:checkableBehavior="single">
         <item
-            android:id="@+id/nav_camera"
-            android:icon="@drawable/ic_menu_camera"
-            android:title="Import" />
+            android:id="@+id/nav_home"
+            android:icon="@drawable/ic_menu_home"
+            android:title="@string/home_item"
+            />
         <item
-            android:id="@+id/nav_gallery"
-            android:icon="@drawable/ic_menu_gallery"
-            android:title="Gallery" />
+            android:id="@+id/nav_diary"
+            android:icon="@drawable/ic_menu_book"
+            android:title="@string/book_item"
+            />
         <item
-            android:id="@+id/nav_slideshow"
-            android:icon="@drawable/ic_menu_slideshow"
-            android:title="Slideshow" />
+            android:id="@+id/nav_profile"
+            android:icon="@drawable/ic_menu_avatar"
+            android:title="Dane biometryczne" />
         <item
-            android:id="@+id/nav_manage"
-            android:icon="@drawable/ic_menu_manage"
-            android:title="Tools" />
+            android:id="@+id/nav_personal_details"
+            android:icon="@drawable/ic_menu_avatar"
+            android:title="Dane personalne" />
+        <item
+            android:id="@+id/nav_progres"
+            android:icon="@drawable/ic_menu_progres"
+            android:title="@string/progres_item" />
+        <item
+            android:id="@+id/nav_message"
+            android:icon="@drawable/ic_menu_message"
+            android:title="@string/message_item" />
+        <item
+            android:id="@+id/nav_reminder"
+            android:icon="@drawable/ic_menu_reminder"
+            android:title="@string/reminder_item" />
+        <item
+            android:id="@+id/nav_couch"
+            android:icon="@drawable/ic_menu_avatar"
+            android:title="Trenerzy" />
+        <item
+            android:id="@+id/nav_amators"
+            android:icon="@drawable/ic_menu_avatar"
+            android:title="Podopieczni" />
     </group>
 
-    <item android:title="Communicate">
-        <menu>
-            <item
-                android:id="@+id/nav_share"
-                android:icon="@drawable/ic_menu_share"
-                android:title="Share" />
-            <item
-                android:id="@+id/nav_send"
-                android:icon="@drawable/ic_menu_send"
-                android:title="Send" />
-        </menu>
-    </item>
+
 
 </menu>

@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
-    tools:context="com.pracainz20.WelcomeActivity"
+    tools:context="com.pracainz20.Activity.WelcomeActivity"
     tools:showIn="@layout/activity_welcome"
     android:orientation="vertical">
 
@@ -40,16 +40,17 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
-            <Button android:id="@+id/buttonConfirmationDiary"
+            <Button
+                android:id="@+id/buttonConfirmationDiary"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_gravity="center"
-
-
-                android:textAppearance="?android:attr/textAppearanceLarge"
-                android:text="Zatwierdź dziennik"
                 android:layout_alignParentTop="true"
-                android:layout_centerHorizontal="true" />
+
+
+                android:layout_centerHorizontal="true"
+                android:layout_gravity="center"
+                android:text="Zatwierdź profil"
+                android:textAppearance="?android:attr/textAppearanceLarge" />
         </RelativeLayout>
 
     </LinearLayout>

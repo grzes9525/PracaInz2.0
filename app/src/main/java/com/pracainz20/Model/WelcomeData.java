@@ -1,4 +1,4 @@
-package com.pracainz20;
+package com.pracainz20.Model;
 
 /**
  * Created by Grzechu on 23.10.2017.
