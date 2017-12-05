@@ -42,7 +42,7 @@ public class WelcomeAdapter extends RecyclerView.Adapter<WelcomeAdapter.MyViewHo
     public MyViewHolder onCreateViewHolder(ViewGroup parent,
                                            int viewType) {
         View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.card_view_welcome, parent, false);
+                .inflate(R.layout.card_view_diary, parent, false);
 
         view.setOnClickListener(WelcomeActivity.getMyOnClickListener());
 

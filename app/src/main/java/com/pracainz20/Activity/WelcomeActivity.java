@@ -45,7 +45,7 @@ public class WelcomeActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_welcome);
+        setContentView(R.layout.activity_diary);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         toolbar.setTitle("Mój profil");
         setSupportActionBar(toolbar);
@@ -93,7 +93,7 @@ public class WelcomeActivity extends AppCompatActivity {
 
 
             LayoutInflater layoutInflaterAndroid = LayoutInflater.from(c);
-            View mView = layoutInflaterAndroid.inflate(R.layout.dialog_welcome, null);
+            View mView = layoutInflaterAndroid.inflate(R.layout.dialog_diary, null);
             AlertDialog.Builder alertDialogBuilderUserInput = new AlertDialog.Builder(c);
             alertDialogBuilderUserInput.setView(mView);
 
