@@ -24,7 +24,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-public class WelcomeActivity extends AppCompatActivity {
+public class DiaryActivity extends AppCompatActivity {
 
     private static RecyclerView.Adapter adapter;
     private RecyclerView.LayoutManager layoutManager;
@@ -47,14 +47,14 @@ public class WelcomeActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_diary);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        toolbar.setTitle("Mój profil");
+        toolbar.setTitle("Dziennik");
         setSupportActionBar(toolbar);
 
-        confirmationDiaryButton = (Button) findViewById(R.id.buttonConfirmationDiary);
+        confirmationDiaryButton = (Button) findViewById(R.id.buttonConfirmationPersonal);
 
         myOnClickListener = new MyOnClickListener(this);
 
-        recyclerView = (RecyclerView) findViewById(R.id.my_recycler_view_welcome);
+        recyclerView = (RecyclerView) findViewById(R.id.my_recycler_view_personal);
         recyclerView.setHasFixedSize(true);
 
         layoutManager = new LinearLayoutManager(this);
@@ -67,8 +67,8 @@ public class WelcomeActivity extends AppCompatActivity {
                     WelcomeDB.getTitles()[i],
                     WelcomeDB.getValues()[i],
                     WelcomeDB.getId_()[i],
-                    WelcomeDB.getUnits()[i]
-
+                    WelcomeDB.getUnits()[i],
+                    WelcomeDB.getUnityCardView()[i]
             ));
         }
 
@@ -168,7 +168,7 @@ public class WelcomeActivity extends AppCompatActivity {
     }
 
     public static void setAdapter(RecyclerView.Adapter adapter) {
-        WelcomeActivity.adapter = adapter;
+        DiaryActivity.adapter = adapter;
     }
 
     public RecyclerView.LayoutManager getLayoutManager() {
@@ -184,7 +184,7 @@ public class WelcomeActivity extends AppCompatActivity {
     }
 
     public static void setRecyclerView(RecyclerView recyclerView) {
-        WelcomeActivity.recyclerView = recyclerView;
+        DiaryActivity.recyclerView = recyclerView;
     }
 
     public static ArrayList<WelcomeData> getData() {
@@ -192,7 +192,7 @@ public class WelcomeActivity extends AppCompatActivity {
     }
 
     public static void setData(ArrayList<WelcomeData> data) {
-        WelcomeActivity.data = data;
+        DiaryActivity.data = data;
     }
 
     public static View.OnClickListener getMyOnClickListener() {
@@ -200,7 +200,7 @@ public class WelcomeActivity extends AppCompatActivity {
     }
 
     public static void setMyOnClickListener(View.OnClickListener myOnClickListener) {
-        WelcomeActivity.myOnClickListener = myOnClickListener;
+        DiaryActivity.myOnClickListener = myOnClickListener;
     }
 
     public Context getC() {

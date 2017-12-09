@@ -10,6 +10,7 @@ public class WelcomeDB {
     static String[] titles = {"Imię","Nazwisko","Numer telefonu","Wzrost","Wiek"};
     static String[] values = {"Adam", "Adamecki", "123456789","175","25"};
     static String[] units = {"kg", "kg", "kg na tydz"," "," "};
+    static String[] unityCardView = {"","","","cm","lat"};
     static Integer[] id_ = {0, 1, 2, 3,4};
 
     public static String[] getTitles() {
@@ -43,5 +44,14 @@ public class WelcomeDB {
     public static void setId_(Integer[] id_) {
         WelcomeDB.id_ = id_;
     }
-//{"Imię","Nazwisko","Numer telefonu","Wzrost","Wiek"}
+
+
+    public static String[] getUnityCardView() {
+        return unityCardView;
+    }
+
+    public static void setUnityCardView(String[] unityCardView) {
+        WelcomeDB.unityCardView = unityCardView;
+    }
+
 }

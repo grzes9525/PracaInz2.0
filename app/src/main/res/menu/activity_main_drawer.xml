@@ -15,7 +15,7 @@
         <item
             android:id="@+id/nav_profile"
             android:icon="@drawable/ic_menu_avatar"
-            android:title="Dane biometryczne" />
+            android:title="Mój profil" />
         <item
             android:id="@+id/nav_personal_details"
             android:icon="@drawable/ic_menu_avatar"

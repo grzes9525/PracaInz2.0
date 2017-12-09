@@ -6,9 +6,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.pracainz20.Activity.PersonalActivity;
+import com.pracainz20.Activity.PersonalDetailActivity;
 import com.pracainz20.Model.WelcomeData;
 import com.pracainz20.R;
-import com.pracainz20.Activity.WelcomeActivity;
+import com.pracainz20.Activity.DiaryActivity;
 
 import java.util.ArrayList;
 
@@ -24,12 +26,14 @@ public class WelcomeAdapter extends RecyclerView.Adapter<WelcomeAdapter.MyViewHo
 
         TextView textViewTitle;
         TextView textViewValue;
+        TextView unity_CardView_textView;
 
 
         public MyViewHolder(View itemView) {
             super(itemView);
             this.textViewTitle = (TextView) itemView.findViewById(R.id.textViewTitle);
             this.textViewValue = (TextView) itemView.findViewById(R.id.textViewValue);
+            this.unity_CardView_textView = (TextView) itemView.findViewById(R.id.unity_cardView_textView);
 
         }
     }
@@ -44,7 +48,8 @@ public class WelcomeAdapter extends RecyclerView.Adapter<WelcomeAdapter.MyViewHo
         View view = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.card_view_diary, parent, false);
 
-        view.setOnClickListener(WelcomeActivity.getMyOnClickListener());
+        view.setOnClickListener(DiaryActivity.getMyOnClickListener());
+        view.setOnClickListener(PersonalActivity.getMyOnClickListener());
 
         MyViewHolder myViewHolder = new MyViewHolder(view);
         return myViewHolder;
@@ -55,10 +60,12 @@ public class WelcomeAdapter extends RecyclerView.Adapter<WelcomeAdapter.MyViewHo
 
         TextView textViewTitle = holder.textViewTitle;
         TextView textViewValue = holder.textViewValue;
+        TextView unity_cardView_textView = holder.unity_CardView_textView;
 
 
         textViewTitle.setText(dataSet.get(listPosition).getTitle());
         textViewValue.setText(dataSet.get(listPosition).getValue());
+        unity_cardView_textView.setText(dataSet.get(listPosition).getUnity());
 
     }
 
