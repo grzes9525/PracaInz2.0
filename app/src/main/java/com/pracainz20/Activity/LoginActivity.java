@@ -40,10 +40,9 @@ public class LoginActivity extends BaseActivity implements
 
     private EditText mEmailField;
     private EditText mPasswordField;
-
-    // [START declare_auth]
     private FirebaseAuth mAuth;
-    // [END declare_auth]
+
+
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -107,6 +106,7 @@ public class LoginActivity extends BaseActivity implements
                         // [END_EXCLUDE]
                     }
                 });
+
         // [END create_user_with_email]
     }
 
@@ -238,5 +238,29 @@ public class LoginActivity extends BaseActivity implements
         } else if (i == R.id.verify_email_button) {
             sendEmailVerification();
         }
+    }
+
+    public EditText getmEmailField() {
+        return mEmailField;
+    }
+
+    public void setmEmailField(EditText mEmailField) {
+        this.mEmailField = mEmailField;
+    }
+
+    public EditText getmPasswordField() {
+        return mPasswordField;
+    }
+
+    public void setmPasswordField(EditText mPasswordField) {
+        this.mPasswordField = mPasswordField;
+    }
+
+    public FirebaseAuth getmAuth() {
+        return mAuth;
+    }
+
+    public void setmAuth(FirebaseAuth mAuth) {
+        this.mAuth = mAuth;
     }
 }

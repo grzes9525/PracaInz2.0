@@ -13,6 +13,8 @@ public class WelcomeDB {
     static String[] unityCardView = {"","","","cm","lat"};
     static Integer[] id_ = {0, 1, 2, 3,4};
 
+
+
     public static String[] getTitles() {
         return titles;
     }
