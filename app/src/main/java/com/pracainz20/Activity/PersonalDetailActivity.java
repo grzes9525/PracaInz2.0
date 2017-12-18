@@ -4,32 +4,32 @@ import android.app.ProgressDialog;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
-import android.support.design.widget.Snackbar;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
-import com.google.firebase.storage.UploadTask;
+import com.pracainz20.Model.Client;
 import com.pracainz20.R;
 import com.theartofdev.edmodo.cropper.CropImage;
 import com.theartofdev.edmodo.cropper.CropImageView;
@@ -43,14 +43,16 @@ public class PersonalDetailActivity extends AppCompatActivity implements Navigat
     private EditText age;
     private Button createAccountBtn;
     private DatabaseReference mDatabaseReference;
+    private DatabaseReference currenUserDb;
     private FirebaseDatabase mDatabase;
     private StorageReference mFirebaseStorage;
     private ProgressDialog mProgressDialog;
     private ImageButton profilePic;
     private Uri resultUri = null;
     private final static int GALLERY_CODE = 1;
-    private LoginActivity loginActivity;
-    private FirebaseAuth auth;
+
+    private DataSnapshot dataSnapshot;
+
 
 
     @Override
@@ -73,6 +75,7 @@ public class PersonalDetailActivity extends AppCompatActivity implements Navigat
         mDatabase = FirebaseDatabase.getInstance();
         mDatabaseReference = mDatabase.getReference().child("MUsers");
 
+        currenUserDb = mDatabaseReference.child(FirebaseAuth.getInstance().getCurrentUser().getUid());
         mFirebaseStorage = FirebaseStorage.getInstance().getReference().child("MBlog_Profile_Pics");
 
 
@@ -85,8 +88,8 @@ public class PersonalDetailActivity extends AppCompatActivity implements Navigat
         height = (EditText) findViewById(R.id.personal_height);
         age = (EditText) findViewById(R.id.personal_age);
         profilePic = (ImageButton) findViewById(R.id.personal_profilePic);
-
         createAccountBtn = (Button) findViewById(R.id.personal_createAccoutAct);
+
         profilePic.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -97,40 +100,29 @@ public class PersonalDetailActivity extends AppCompatActivity implements Navigat
 
             }
         });
-        createAccountBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                createNewAccount();
-            }
-        });
+
     }
 
     private void createNewAccount() {
+        Client client = new Client();
 
-        final String name = firstName.getText().toString().trim();
-        final String lname = lastName.getText().toString().trim();
-        final String p_number = phone_number.getText().toString().trim();
-        final String height_ = height.getText().toString().trim();
-        final String age_ = age.getText().toString().trim();
+        client.setFirstName(firstName.getText().toString().trim());
+        client.setLastName(lastName.getText().toString().trim());
+        client.setPhoneNumber(phone_number.getText().toString().trim());
+        client.setHeight(height.getText().toString().trim());
+        client.setAge(age.getText().toString().trim());
 
         // update the user profile information in Firebase database.
-        if(TextUtils.isEmpty(name) || TextUtils.isEmpty(lname) || TextUtils.isEmpty(p_number)
-                || TextUtils.isEmpty(height_) || TextUtils.isEmpty(age_)){
+        if(TextUtils.isEmpty(client.getFirstName()) || TextUtils.isEmpty(client.getLastName()) ||
+                TextUtils.isEmpty(client.getPhoneNumber())
+                || TextUtils.isEmpty(client.getHeight()) || TextUtils.isEmpty(client.getAge())){
             Toast.makeText(getApplicationContext(), "Wszystkie pola musza byc wypełnione.", Toast.LENGTH_LONG).show();
         }
         mProgressDialog.setMessage("Creating Account...");
         mProgressDialog.show();
 
-        String userId =FirebaseAuth.getInstance().getCurrentUser().getUid();
-
-        DatabaseReference currenUserDb = mDatabaseReference.child(userId);
-        currenUserDb.child("firstname").setValue(name);
-        currenUserDb.child("lastname").setValue(lname);
-        currenUserDb.child("phonenumber").setValue(p_number);
-        currenUserDb.child("height").setValue(height_);
-        currenUserDb.child("age").setValue(age_);
+        currenUserDb.setValue(client);
         currenUserDb.child("image").setValue(resultUri.toString());
-
 
         mProgressDialog.dismiss();
 
@@ -138,6 +130,38 @@ public class PersonalDetailActivity extends AppCompatActivity implements Navigat
         Intent intent = new Intent(getApplicationContext(), MainActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         startActivity(intent);
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+
+        createAccountBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                createNewAccount();
+            }
+        });
+
+        currenUserDb.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                //test
+
+                Client client = dataSnapshot.getValue(Client.class);
+
+                firstName.setText(client.getFirstName(), TextView.BufferType.EDITABLE);
+                lastName.setText(client.getLastName(), TextView.BufferType.EDITABLE);
+                phone_number.setText(client.getPhoneNumber(), TextView.BufferType.EDITABLE);
+                height.setText(client.getHeight(), TextView.BufferType.EDITABLE);
+                age.setText(client.getAge(), TextView.BufferType.EDITABLE);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
     }
 
     @Override
@@ -318,12 +342,21 @@ public class PersonalDetailActivity extends AppCompatActivity implements Navigat
         return GALLERY_CODE;
     }
 
-    public LoginActivity getLoginActivity() {
-        return loginActivity;
+
+    public DatabaseReference getCurrenUserDb() {
+        return currenUserDb;
     }
 
-    public void setLoginActivity(LoginActivity loginActivity) {
-        this.loginActivity = loginActivity;
+    public void setCurrenUserDb(DatabaseReference currenUserDb) {
+        this.currenUserDb = currenUserDb;
+    }
+
+    public DataSnapshot getDataSnapshot() {
+        return dataSnapshot;
+    }
+
+    public void setDataSnapshot(DataSnapshot dataSnapshot) {
+        this.dataSnapshot = dataSnapshot;
     }
 
 }

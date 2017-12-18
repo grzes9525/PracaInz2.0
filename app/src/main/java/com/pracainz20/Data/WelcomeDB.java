@@ -5,55 +5,54 @@ package com.pracainz20.Data;
  */
 
 public class WelcomeDB {
+    private String[] titles = {"Imię","Nazwisko","Numer telefonu","Wzrost","Wiek"};
+    private String[] values = {"Adam", "Adamecki", "123456789","175","25"};
+    private String[] units = {"kg", "kg", "kg na tydz"," "," "};
+    private String[] unityCardView = {"","","","cm","lat"};
+    private Integer[] id_ = {0, 1, 2, 3,4};
 
-
-    static String[] titles = {"Imię","Nazwisko","Numer telefonu","Wzrost","Wiek"};
-    static String[] values = {"Adam", "Adamecki", "123456789","175","25"};
-    static String[] units = {"kg", "kg", "kg na tydz"," "," "};
-    static String[] unityCardView = {"","","","cm","lat"};
-    static Integer[] id_ = {0, 1, 2, 3,4};
-
-
-
-    public static String[] getTitles() {
+    public String[] getTitles() {
         return titles;
     }
 
-    public static void setTitles(String[] titles) {
-        WelcomeDB.titles = titles;
+    public void setTitles(String[] titles) {
+        this.titles = titles;
     }
 
-    public static String[] getValues() {
+    public String[] getValues() {
         return values;
     }
 
-    public static void setValues(String[] values) {
-        WelcomeDB.values = values;
+    public void setValues(String[] values) {
+        this.values = values;
     }
 
-    public static String[] getUnits() {
+    public String[] getUnits() {
         return units;
     }
 
-    public static void setUnits(String[] units) {
-        WelcomeDB.units = units;
+    public void setUnits(String[] units) {
+        this.units = units;
     }
 
-    public static Integer[] getId_() {
-        return id_;
-    }
-
-    public static void setId_(Integer[] id_) {
-        WelcomeDB.id_ = id_;
-    }
-
-
-    public static String[] getUnityCardView() {
+    public String[] getUnityCardView() {
         return unityCardView;
     }
 
-    public static void setUnityCardView(String[] unityCardView) {
-        WelcomeDB.unityCardView = unityCardView;
+    public void setUnityCardView(String[] unityCardView) {
+        this.unityCardView = unityCardView;
     }
+
+    public Integer[] getId_() {
+        return id_;
+    }
+
+    public void setId_(Integer[] id_) {
+        this.id_ = id_;
+    }
+
+
+
+
 
 }

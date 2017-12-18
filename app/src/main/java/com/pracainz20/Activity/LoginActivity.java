@@ -23,6 +23,7 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -41,6 +42,8 @@ public class LoginActivity extends BaseActivity implements
     private EditText mEmailField;
     private EditText mPasswordField;
     private FirebaseAuth mAuth;
+    private String userId;
+
 
 
 
@@ -53,6 +56,7 @@ public class LoginActivity extends BaseActivity implements
 
         mEmailField = (EditText) findViewById(R.id.field_email);
         mPasswordField = (EditText) findViewById(R.id.field_password);
+
 
         // Buttons
         findViewById(R.id.email_sign_in_button).setOnClickListener(this);
@@ -93,6 +97,7 @@ public class LoginActivity extends BaseActivity implements
                             Log.d(TAG, "createUserWithEmail:success");
                             FirebaseUser user = mAuth.getCurrentUser();
                             updateUI(user);
+
                         } else {
                             // If sign in fails, display a message to the user.
                             Log.w(TAG, "createUserWithEmail:failure", task.getException());
@@ -128,6 +133,8 @@ public class LoginActivity extends BaseActivity implements
                             Log.d(TAG, "signInWithEmail:success");
                             FirebaseUser user = mAuth.getCurrentUser();
                             updateUI(user);
+                            userId = user.getUid();
+                            Log.d(TAG,"Wartosc userId: "+userId);
                             startActivity(new Intent(LoginActivity.this, MainActivity.class));
                             finish();
                         } else {
@@ -262,5 +269,13 @@ public class LoginActivity extends BaseActivity implements
 
     public void setmAuth(FirebaseAuth mAuth) {
         this.mAuth = mAuth;
+    }
+
+    public String getUserId() {
+        return userId;
+    }
+
+    public void setUserId(String userId) {
+        this.userId = userId;
     }
 }

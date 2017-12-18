@@ -40,6 +40,7 @@ public class DiaryActivity extends AppCompatActivity {
     private Integer current_id;
     private TextView textViewValue;
     RecyclerView.ViewHolder viewHolder;
+    private WelcomeDB welcomeDB;
 
 
     @Override
@@ -62,13 +63,13 @@ public class DiaryActivity extends AppCompatActivity {
         recyclerView.setItemAnimator(new DefaultItemAnimator());
 
         data = new ArrayList<WelcomeData>();
-        for (int i = 0; i < WelcomeDB.getTitles().length; i++) {
+        for (int i = 0; i < welcomeDB.getTitles().length; i++) {
             data.add(new WelcomeData(
-                    WelcomeDB.getTitles()[i],
-                    WelcomeDB.getValues()[i],
-                    WelcomeDB.getId_()[i],
-                    WelcomeDB.getUnits()[i],
-                    WelcomeDB.getUnityCardView()[i]
+                    welcomeDB.getTitles()[i],
+                    welcomeDB.getValues()[i],
+                    welcomeDB.getId_()[i],
+                    welcomeDB.getUnits()[i],
+                    welcomeDB.getUnityCardView()[i]
             ));
         }
 
@@ -77,6 +78,13 @@ public class DiaryActivity extends AppCompatActivity {
         recyclerView.setAdapter(adapter);
     }
 
+    public WelcomeDB getWelcomeDB() {
+        return welcomeDB;
+    }
+
+    public void setWelcomeDB(WelcomeDB welcomeDB) {
+        this.welcomeDB = welcomeDB;
+    }
 
 
     public class MyOnClickListener implements View.OnClickListener {
@@ -104,8 +112,8 @@ public class DiaryActivity extends AppCompatActivity {
 
             //String dialogTitle= getValue(v).keySet().toString();
             //String dialog = dialogTitle.substring(1,dialogTitle.length()-1);
-            userInputDialogTextViewTitle.setText(WelcomeDB.getTitles()[getValue(v)]);
-            textViewUnit.setText(WelcomeDB.getUnits()[getValue(v)]);
+            userInputDialogTextViewTitle.setText(welcomeDB.getTitles()[getValue(v)]);
+            textViewUnit.setText(welcomeDB.getUnits()[getValue(v)]);
             //userInputDialogEditText.setText(WelcomeDB.values[getValue(v)]);
             current_id = getValue(v);
             viewHolder
@@ -121,9 +129,9 @@ public class DiaryActivity extends AppCompatActivity {
 
                             currentValue = String.valueOf(userInputDialogEditText.getText());
                             ////welcome DB
-                            WelcomeDB.getValues()[current_id]=currentValue;
-                            userInputDialogEditText.setText(WelcomeDB.getValues()[current_id]);
-                            textViewValue.setText(WelcomeDB.getValues()[current_id]);
+                            welcomeDB.getValues()[current_id]=currentValue;
+                            userInputDialogEditText.setText(welcomeDB.getValues()[current_id]);
+                            textViewValue.setText(welcomeDB.getValues()[current_id]);
 
                         }
                     })
@@ -148,13 +156,13 @@ public class DiaryActivity extends AppCompatActivity {
                     = (TextView) viewHolder.itemView.findViewById(R.id.textViewTitle);
             String selectedTitle = (String) textViewTitle.getText();
             int selectedItemId = -1;
-            for (int i = 0; i < WelcomeDB.getTitles().length; i++) {
-                if (selectedTitle.equals(WelcomeDB.getTitles()[i])) {
-                    selectedItemId = WelcomeDB.getId_()[i];
+            for (int i = 0; i < welcomeDB.getTitles().length; i++) {
+                if (selectedTitle.equals(welcomeDB.getTitles()[i])) {
+                    selectedItemId = welcomeDB.getId_()[i];
                 }
             }
             Map<String,String> welcomeData = new HashMap<>();
-            welcomeData.put(WelcomeDB.getTitles()[selectedItemId],WelcomeDB.getValues()[selectedItemId]);
+            welcomeData.put(welcomeDB.getTitles()[selectedItemId],welcomeDB.getValues()[selectedItemId]);
 
             return selectedItemId;
         }
