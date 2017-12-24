@@ -22,6 +22,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -50,10 +51,9 @@ public class PersonalDetailActivity extends AppCompatActivity implements Navigat
     private ImageButton profilePic;
     private Uri resultUri = null;
     private final static int GALLERY_CODE = 1;
-
     private DataSnapshot dataSnapshot;
-
-
+    private FirebaseUser mUser;
+    private FirebaseAuth mAuth;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,9 +72,14 @@ public class PersonalDetailActivity extends AppCompatActivity implements Navigat
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
+        mAuth = FirebaseAuth.getInstance();
+        mUser = mAuth.getCurrentUser();
+
         mDatabase = FirebaseDatabase.getInstance();
         mDatabaseReference = mDatabase.getReference().child("MUsers");
+        mDatabaseReference.keepSynced(true);
 
+        Log.d("ID clienta",FirebaseAuth.getInstance().getCurrentUser().getUid());
         currenUserDb = mDatabaseReference.child(FirebaseAuth.getInstance().getCurrentUser().getUid());
         mFirebaseStorage = FirebaseStorage.getInstance().getReference().child("MBlog_Profile_Pics");
 
@@ -101,6 +106,34 @@ public class PersonalDetailActivity extends AppCompatActivity implements Navigat
             }
         });
 
+        final String[] clientDetail = new String[6];
+
+        currenUserDb.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                Client client = dataSnapshot.getValue(Client.class);
+                Log.d("Imie clienta",client.getFirstName());
+                clientDetail[0] = client.getFirstName();
+                clientDetail[1] = client.getLastName();
+                clientDetail[2] = client.getPhoneNumber();
+                clientDetail[3] = client.getAge();
+                clientDetail[4] = client.getHeight();
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }}
+        );
+
+        firstName.setText(clientDetail[0], TextView.BufferType.EDITABLE);
+        lastName.setText(clientDetail[1], TextView.BufferType.EDITABLE);
+        phone_number.setText(clientDetail[2], TextView.BufferType.EDITABLE);
+        age.setText(clientDetail[3], TextView.BufferType.EDITABLE);
+        height.setText(clientDetail[4], TextView.BufferType.EDITABLE);
+
+
     }
 
     private void createNewAccount() {
@@ -126,7 +159,7 @@ public class PersonalDetailActivity extends AppCompatActivity implements Navigat
 
         mProgressDialog.dismiss();
 
-        //send users to postList
+
         Intent intent = new Intent(getApplicationContext(), MainActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         startActivity(intent);
@@ -146,7 +179,6 @@ public class PersonalDetailActivity extends AppCompatActivity implements Navigat
         currenUserDb.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                //test
 
                 Client client = dataSnapshot.getValue(Client.class);
 
@@ -155,6 +187,8 @@ public class PersonalDetailActivity extends AppCompatActivity implements Navigat
                 phone_number.setText(client.getPhoneNumber(), TextView.BufferType.EDITABLE);
                 height.setText(client.getHeight(), TextView.BufferType.EDITABLE);
                 age.setText(client.getAge(), TextView.BufferType.EDITABLE);
+
+
             }
 
             @Override
@@ -184,7 +218,6 @@ public class PersonalDetailActivity extends AppCompatActivity implements Navigat
             CropImage.ActivityResult result = CropImage.getActivityResult(data);
             if (resultCode == RESULT_OK) {
                 resultUri = result.getUri();
-
                 profilePic.setImageURI(resultUri);
 
             } else if (resultCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE) {
@@ -225,7 +258,7 @@ public class PersonalDetailActivity extends AppCompatActivity implements Navigat
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.main, menu);
-        return true;
+        return super.onCreateOptionsMenu(menu);
     }
 
     @Override
@@ -236,12 +269,19 @@ public class PersonalDetailActivity extends AppCompatActivity implements Navigat
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
+        if (id == R.id.action_signout) {
+            if (mUser != null && mAuth != null) {
+                mAuth.signOut();
+
+                startActivity(new Intent(getApplicationContext(), LoginActivity.class));
+                finish();
+
+            }
         }
 
         return super.onOptionsItemSelected(item);
     }
+
     public EditText getFirstName() {
         return firstName;
     }
@@ -357,6 +397,22 @@ public class PersonalDetailActivity extends AppCompatActivity implements Navigat
 
     public void setDataSnapshot(DataSnapshot dataSnapshot) {
         this.dataSnapshot = dataSnapshot;
+    }
+
+    public FirebaseUser getmUser() {
+        return mUser;
+    }
+
+    public void setmUser(FirebaseUser mUser) {
+        this.mUser = mUser;
+    }
+
+    public FirebaseAuth getmAuth() {
+        return mAuth;
+    }
+
+    public void setmAuth(FirebaseAuth mAuth) {
+        this.mAuth = mAuth;
     }
 
 }

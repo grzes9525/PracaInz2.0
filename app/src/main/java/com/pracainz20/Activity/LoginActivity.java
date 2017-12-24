@@ -1,37 +1,23 @@
-/**
- * Copyright 2016 Google Inc. All Rights Reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package com.pracainz20.Activity;
 
-import android.content.Intent;
-import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.text.TextUtils;
-import android.util.Log;
-import android.view.View;
-import android.widget.EditText;
-import android.widget.TextView;
-import android.widget.Toast;
+         import android.content.Intent;
+         import android.os.Bundle;
+         import android.support.annotation.NonNull;
+         import android.support.v7.app.AppCompatActivity;
+         import android.text.TextUtils;
+         import android.util.Log;
+         import android.view.Menu;
+         import android.view.MenuItem;
+         import android.view.View;
+         import android.widget.EditText;
+         import android.widget.Toast;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.AuthResult;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
-import com.pracainz20.R;
+         import com.google.android.gms.tasks.OnCompleteListener;
+         import com.google.android.gms.tasks.Task;
+         import com.google.firebase.auth.AuthResult;
+         import com.google.firebase.auth.FirebaseAuth;
+         import com.google.firebase.auth.FirebaseUser;
+         import com.pracainz20.R;
 
 public class LoginActivity extends BaseActivity implements
         View.OnClickListener {
@@ -41,22 +27,28 @@ public class LoginActivity extends BaseActivity implements
 
     private EditText mEmailField;
     private EditText mPasswordField;
+
+    // [START declare_auth]
     private FirebaseAuth mAuth;
-    private String userId;
-
-
-
+    // [END declare_auth]
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+        // [START initialize_auth]
+        mAuth = FirebaseAuth.getInstance();
+        // [END initialize_auth]
 
+        if (mAuth.getCurrentUser() != null) {
+            // User is signed in (getCurrentUser() will be null if not signed in)
+            startActivity(new Intent(LoginActivity.this, MainActivity.class));
+            finish();
+        }
         // Views
 
         mEmailField = (EditText) findViewById(R.id.field_email);
         mPasswordField = (EditText) findViewById(R.id.field_password);
-
 
         // Buttons
         findViewById(R.id.email_sign_in_button).setOnClickListener(this);
@@ -64,9 +56,8 @@ public class LoginActivity extends BaseActivity implements
         findViewById(R.id.sign_out_button).setOnClickListener(this);
         findViewById(R.id.verify_email_button).setOnClickListener(this);
 
-        // [START initialize_auth]
-        mAuth = FirebaseAuth.getInstance();
-        // [END initialize_auth]
+
+
     }
 
     // [START on_start_check_user]
@@ -97,7 +88,6 @@ public class LoginActivity extends BaseActivity implements
                             Log.d(TAG, "createUserWithEmail:success");
                             FirebaseUser user = mAuth.getCurrentUser();
                             updateUI(user);
-
                         } else {
                             // If sign in fails, display a message to the user.
                             Log.w(TAG, "createUserWithEmail:failure", task.getException());
@@ -111,7 +101,6 @@ public class LoginActivity extends BaseActivity implements
                         // [END_EXCLUDE]
                     }
                 });
-
         // [END create_user_with_email]
     }
 
@@ -133,8 +122,6 @@ public class LoginActivity extends BaseActivity implements
                             Log.d(TAG, "signInWithEmail:success");
                             FirebaseUser user = mAuth.getCurrentUser();
                             updateUI(user);
-                            userId = user.getUid();
-                            Log.d(TAG,"Wartosc userId: "+userId);
                             startActivity(new Intent(LoginActivity.this, MainActivity.class));
                             finish();
                         } else {
@@ -234,6 +221,26 @@ public class LoginActivity extends BaseActivity implements
     }
 
     @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+
+
+        if (item.getItemId() == R.id.action_signout) {
+
+            mAuth.signOut();
+
+        }
+
+        return super.onOptionsItemSelected(item);
+
+
+    }
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.main, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
     public void onClick(View v) {
         int i = v.getId();
         if (i == R.id.email_create_account_button) {
@@ -245,37 +252,5 @@ public class LoginActivity extends BaseActivity implements
         } else if (i == R.id.verify_email_button) {
             sendEmailVerification();
         }
-    }
-
-    public EditText getmEmailField() {
-        return mEmailField;
-    }
-
-    public void setmEmailField(EditText mEmailField) {
-        this.mEmailField = mEmailField;
-    }
-
-    public EditText getmPasswordField() {
-        return mPasswordField;
-    }
-
-    public void setmPasswordField(EditText mPasswordField) {
-        this.mPasswordField = mPasswordField;
-    }
-
-    public FirebaseAuth getmAuth() {
-        return mAuth;
-    }
-
-    public void setmAuth(FirebaseAuth mAuth) {
-        this.mAuth = mAuth;
-    }
-
-    public String getUserId() {
-        return userId;
-    }
-
-    public void setUserId(String userId) {
-        this.userId = userId;
     }
 }
