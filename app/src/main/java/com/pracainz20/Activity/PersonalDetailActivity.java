@@ -21,8 +21,10 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -30,10 +32,15 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 import com.pracainz20.Model.Client;
 import com.pracainz20.R;
 import com.theartofdev.edmodo.cropper.CropImage;
 import com.theartofdev.edmodo.cropper.CropImageView;
+
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 public class PersonalDetailActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
@@ -54,6 +61,7 @@ public class PersonalDetailActivity extends AppCompatActivity implements Navigat
     private DataSnapshot dataSnapshot;
     private FirebaseUser mUser;
     private FirebaseAuth mAuth;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -83,8 +91,6 @@ public class PersonalDetailActivity extends AppCompatActivity implements Navigat
         currenUserDb = mDatabaseReference.child(FirebaseAuth.getInstance().getCurrentUser().getUid());
         mFirebaseStorage = FirebaseStorage.getInstance().getReference().child("MBlog_Profile_Pics");
 
-
-
         mProgressDialog = new ProgressDialog(this);
 
         firstName = (EditText) findViewById(R.id.personal_firstNameAct);
@@ -106,38 +112,11 @@ public class PersonalDetailActivity extends AppCompatActivity implements Navigat
             }
         });
 
-        final String[] clientDetail = new String[6];
-
-        currenUserDb.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                Client client = dataSnapshot.getValue(Client.class);
-                Log.d("Imie clienta",client.getFirstName());
-                clientDetail[0] = client.getFirstName();
-                clientDetail[1] = client.getLastName();
-                clientDetail[2] = client.getPhoneNumber();
-                clientDetail[3] = client.getAge();
-                clientDetail[4] = client.getHeight();
-
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }}
-        );
-
-        firstName.setText(clientDetail[0], TextView.BufferType.EDITABLE);
-        lastName.setText(clientDetail[1], TextView.BufferType.EDITABLE);
-        phone_number.setText(clientDetail[2], TextView.BufferType.EDITABLE);
-        age.setText(clientDetail[3], TextView.BufferType.EDITABLE);
-        height.setText(clientDetail[4], TextView.BufferType.EDITABLE);
-
 
     }
 
     private void createNewAccount() {
-        Client client = new Client();
+        final Client client = new Client();
 
         client.setFirstName(firstName.getText().toString().trim());
         client.setLastName(lastName.getText().toString().trim());
@@ -146,23 +125,40 @@ public class PersonalDetailActivity extends AppCompatActivity implements Navigat
         client.setAge(age.getText().toString().trim());
 
         // update the user profile information in Firebase database.
-        if(TextUtils.isEmpty(client.getFirstName()) || TextUtils.isEmpty(client.getLastName()) ||
+        if(resultUri == null||TextUtils.isEmpty(client.getFirstName()) || TextUtils.isEmpty(client.getLastName()) ||
                 TextUtils.isEmpty(client.getPhoneNumber())
                 || TextUtils.isEmpty(client.getHeight()) || TextUtils.isEmpty(client.getAge())){
-            Toast.makeText(getApplicationContext(), "Wszystkie pola musza byc wypełnione.", Toast.LENGTH_LONG).show();
+            Toast.makeText(getApplicationContext(), "Niektóre pola zostały nie wypełnione", Toast.LENGTH_LONG).show();
         }
         mProgressDialog.setMessage("Creating Account...");
         mProgressDialog.show();
 
-        currenUserDb.setValue(client);
-        currenUserDb.child("image").setValue(resultUri.toString());
+        StorageReference imagePath = mFirebaseStorage.child("MBlog_Profile_Pics")
+                .child(resultUri.getLastPathSegment());
 
-        mProgressDialog.dismiss();
+        imagePath.putFile(resultUri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+            @Override
+            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+
+                String userid = mAuth.getCurrentUser().getUid();
+
+                DatabaseReference currenUserDb = mDatabaseReference.child(userid);
+                currenUserDb.setValue(client);
+
+                if(resultUri == null) {
+                    currenUserDb.child("image").setValue(R.drawable.ic_menu_avatar);
+                }else{
+                    currenUserDb.child("image").setValue(resultUri.toString());
+                }
+                mProgressDialog.dismiss();
+
+                Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                startActivity(intent);
 
 
-        Intent intent = new Intent(getApplicationContext(), MainActivity.class);
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        startActivity(intent);
+            }
+        });
     }
 
     @Override
@@ -176,11 +172,14 @@ public class PersonalDetailActivity extends AppCompatActivity implements Navigat
             }
         });
 
-        currenUserDb.addValueEventListener(new ValueEventListener() {
+
+
+        mDatabaseReference.addChildEventListener(new ChildEventListener() {
             @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
+            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
 
                 Client client = dataSnapshot.getValue(Client.class);
+
 
                 firstName.setText(client.getFirstName(), TextView.BufferType.EDITABLE);
                 lastName.setText(client.getLastName(), TextView.BufferType.EDITABLE);
@@ -188,6 +187,20 @@ public class PersonalDetailActivity extends AppCompatActivity implements Navigat
                 height.setText(client.getHeight(), TextView.BufferType.EDITABLE);
                 age.setText(client.getAge(), TextView.BufferType.EDITABLE);
 
+            }
+
+            @Override
+            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+
+            }
+
+            @Override
+            public void onChildRemoved(DataSnapshot dataSnapshot) {
+
+            }
+
+            @Override
+            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
 
             }
 

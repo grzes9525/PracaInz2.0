@@ -1,5 +1,6 @@
 package com.pracainz20.Activity;
 
+         import android.app.ProgressDialog;
          import android.content.Intent;
          import android.os.Bundle;
          import android.support.annotation.NonNull;
@@ -19,8 +20,10 @@ package com.pracainz20.Activity;
          import com.google.firebase.auth.FirebaseUser;
          import com.pracainz20.R;
 
-public class LoginActivity extends BaseActivity implements
+public class LoginActivity extends AppCompatActivity implements
         View.OnClickListener {
+
+    private ProgressDialog mProgressDialog;
 
     private static final String TAG = "EmailPassword";
 
@@ -40,6 +43,8 @@ public class LoginActivity extends BaseActivity implements
         mAuth = FirebaseAuth.getInstance();
         // [END initialize_auth]
 
+        mProgressDialog = new ProgressDialog(this);
+
         if (mAuth.getCurrentUser() != null) {
             // User is signed in (getCurrentUser() will be null if not signed in)
             startActivity(new Intent(LoginActivity.this, MainActivity.class));
@@ -53,8 +58,7 @@ public class LoginActivity extends BaseActivity implements
         // Buttons
         findViewById(R.id.email_sign_in_button).setOnClickListener(this);
         findViewById(R.id.email_create_account_button).setOnClickListener(this);
-        findViewById(R.id.sign_out_button).setOnClickListener(this);
-        findViewById(R.id.verify_email_button).setOnClickListener(this);
+
 
 
 
@@ -76,7 +80,7 @@ public class LoginActivity extends BaseActivity implements
             return;
         }
 
-        showProgressDialog();
+        mProgressDialog.show();
 
         // [START create_user_with_email]
         mAuth.createUserWithEmailAndPassword(email, password)
@@ -97,7 +101,7 @@ public class LoginActivity extends BaseActivity implements
                         }
 
                         // [START_EXCLUDE]
-                        hideProgressDialog();
+                        mProgressDialog.dismiss();
                         // [END_EXCLUDE]
                     }
                 });
@@ -110,7 +114,7 @@ public class LoginActivity extends BaseActivity implements
             return;
         }
 
-        showProgressDialog();
+        mProgressDialog.show();
 
         // [START sign_in_with_email]
         mAuth.signInWithEmailAndPassword(email, password)
@@ -136,7 +140,7 @@ public class LoginActivity extends BaseActivity implements
                         if (!task.isSuccessful()) {
 
                         }
-                        hideProgressDialog();
+                        mProgressDialog.dismiss();
                         // [END_EXCLUDE]
                     }
                 });
@@ -150,7 +154,7 @@ public class LoginActivity extends BaseActivity implements
 
     private void sendEmailVerification() {
         // Disable button
-        findViewById(R.id.verify_email_button).setEnabled(false);
+
 
         // Send verification email
         // [START send_email_verification]
@@ -161,7 +165,7 @@ public class LoginActivity extends BaseActivity implements
                     public void onComplete(@NonNull Task<Void> task) {
                         // [START_EXCLUDE]
                         // Re-enable button
-                        findViewById(R.id.verify_email_button).setEnabled(true);
+
 
                         if (task.isSuccessful()) {
                             Toast.makeText(LoginActivity.this,
@@ -202,21 +206,19 @@ public class LoginActivity extends BaseActivity implements
     }
 
     private void updateUI(FirebaseUser user) {
-        hideProgressDialog();
+        mProgressDialog.dismiss();
         if (user != null) {
 
 
             findViewById(R.id.email_password_buttons).setVisibility(View.GONE);
             findViewById(R.id.email_password_fields).setVisibility(View.GONE);
-            findViewById(R.id.signed_in_buttons).setVisibility(View.VISIBLE);
 
-            findViewById(R.id.verify_email_button).setEnabled(!user.isEmailVerified());
         } else {
 
 
             findViewById(R.id.email_password_buttons).setVisibility(View.VISIBLE);
             findViewById(R.id.email_password_fields).setVisibility(View.VISIBLE);
-            findViewById(R.id.signed_in_buttons).setVisibility(View.GONE);
+
         }
     }
 
@@ -247,10 +249,14 @@ public class LoginActivity extends BaseActivity implements
             createAccount(mEmailField.getText().toString(), mPasswordField.getText().toString());
         } else if (i == R.id.email_sign_in_button) {
             signIn(mEmailField.getText().toString(), mPasswordField.getText().toString());
-        } else if (i == R.id.sign_out_button) {
-            signOut();
-        } else if (i == R.id.verify_email_button) {
-            sendEmailVerification();
         }
+    }
+
+    public ProgressDialog getmProgressDialog() {
+        return mProgressDialog;
+    }
+
+    public void setmProgressDialog(ProgressDialog mProgressDialog) {
+        this.mProgressDialog = mProgressDialog;
     }
 }
