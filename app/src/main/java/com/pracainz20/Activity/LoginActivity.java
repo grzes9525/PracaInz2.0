@@ -1,24 +1,24 @@
 package com.pracainz20.Activity;
 
-         import android.app.ProgressDialog;
-         import android.content.Intent;
-         import android.os.Bundle;
-         import android.support.annotation.NonNull;
-         import android.support.v7.app.AppCompatActivity;
-         import android.text.TextUtils;
-         import android.util.Log;
-         import android.view.Menu;
-         import android.view.MenuItem;
-         import android.view.View;
-         import android.widget.EditText;
-         import android.widget.Toast;
+import android.app.ProgressDialog;
+import android.content.Intent;
+import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.v7.app.AppCompatActivity;
+import android.text.TextUtils;
+import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+import android.widget.EditText;
+import android.widget.Toast;
 
-         import com.google.android.gms.tasks.OnCompleteListener;
-         import com.google.android.gms.tasks.Task;
-         import com.google.firebase.auth.AuthResult;
-         import com.google.firebase.auth.FirebaseAuth;
-         import com.google.firebase.auth.FirebaseUser;
-         import com.pracainz20.R;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.pracainz20.R;
 
 public class LoginActivity extends AppCompatActivity implements
         View.OnClickListener {
@@ -58,7 +58,8 @@ public class LoginActivity extends AppCompatActivity implements
         // Buttons
         findViewById(R.id.email_sign_in_button).setOnClickListener(this);
         findViewById(R.id.email_create_account_button).setOnClickListener(this);
-
+        findViewById(R.id.sign_out_button).setOnClickListener(this);
+        findViewById(R.id.verify_email_button).setOnClickListener(this);
 
 
 
@@ -154,7 +155,7 @@ public class LoginActivity extends AppCompatActivity implements
 
     private void sendEmailVerification() {
         // Disable button
-
+        findViewById(R.id.verify_email_button).setEnabled(false);
 
         // Send verification email
         // [START send_email_verification]
@@ -166,7 +167,7 @@ public class LoginActivity extends AppCompatActivity implements
                         // [START_EXCLUDE]
                         // Re-enable button
 
-
+                        findViewById(R.id.verify_email_button).setEnabled(true);
                         if (task.isSuccessful()) {
                             Toast.makeText(LoginActivity.this,
                                     "Verification email sent to " + user.getEmail(),
@@ -212,13 +213,15 @@ public class LoginActivity extends AppCompatActivity implements
 
             findViewById(R.id.email_password_buttons).setVisibility(View.GONE);
             findViewById(R.id.email_password_fields).setVisibility(View.GONE);
+            findViewById(R.id.signed_in_buttons).setVisibility(View.VISIBLE);
 
+            findViewById(R.id.verify_email_button).setEnabled(!user.isEmailVerified());
         } else {
 
 
             findViewById(R.id.email_password_buttons).setVisibility(View.VISIBLE);
             findViewById(R.id.email_password_fields).setVisibility(View.VISIBLE);
-
+            findViewById(R.id.signed_in_buttons).setVisibility(View.GONE);
         }
     }
 
@@ -249,6 +252,10 @@ public class LoginActivity extends AppCompatActivity implements
             createAccount(mEmailField.getText().toString(), mPasswordField.getText().toString());
         } else if (i == R.id.email_sign_in_button) {
             signIn(mEmailField.getText().toString(), mPasswordField.getText().toString());
+        } else if (i == R.id.sign_out_button) {
+            signOut();
+        } else if (i == R.id.verify_email_button) {
+            sendEmailVerification();
         }
     }
 

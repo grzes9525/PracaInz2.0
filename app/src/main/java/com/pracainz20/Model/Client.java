@@ -16,7 +16,8 @@ public class Client {
     private String phoneNumber;
     private String height;
     private String age;
-
+    private String profileImage;
+    private String email;
     private String clientId;
 
 
@@ -68,4 +69,20 @@ public class Client {
         this.clientId = clientId;
     }
 
+
+    public String getProfileImage() {
+        return profileImage;
+    }
+
+    public void setProfileImage(String profileImage) {
+        this.profileImage = profileImage;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
 }
