@@ -2,7 +2,6 @@ package com.pracainz20.Activity;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
-import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
@@ -33,14 +32,10 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
-import com.pracainz20.Model.Client;
+import com.pracainz20.Model.User;
 import com.pracainz20.R;
 import com.theartofdev.edmodo.cropper.CropImage;
 import com.theartofdev.edmodo.cropper.CropImageView;
-
-import java.io.FileNotFoundException;
-import java.io.InputStream;
-import java.net.URI;
 
 public class PersonalDetailActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
@@ -61,6 +56,7 @@ public class PersonalDetailActivity extends AppCompatActivity implements Navigat
     private DataSnapshot dataSnapshot;
     private FirebaseUser mUser;
     private FirebaseAuth mAuth;
+    private String userid;
 
 
 
@@ -86,10 +82,10 @@ public class PersonalDetailActivity extends AppCompatActivity implements Navigat
 
         mDatabase = FirebaseDatabase.getInstance();
         mDatabaseReference = mDatabase.getReference().child("MUsers");
-        mDatabaseReference.keepSynced(true);
+        userid = mUser.getUid();
+        currenUserDb = mDatabaseReference.child(userid);
 
         Log.d("ID clienta",FirebaseAuth.getInstance().getCurrentUser().getUid());
-        currenUserDb = mDatabaseReference.child(FirebaseAuth.getInstance().getCurrentUser().getUid());
         mFirebaseStorage = FirebaseStorage.getInstance().getReference().child("M_Profile_Pics");
 
         mProgressDialog = new ProgressDialog(this);
@@ -116,23 +112,27 @@ public class PersonalDetailActivity extends AppCompatActivity implements Navigat
 
     }
 
-    private void createNewAccount()  {
-        final Client client = new Client();
+    private void loadDataToOnCreate(){
 
-        client.setFirstName(firstName.getText().toString().trim());
-        client.setLastName(lastName.getText().toString().trim());
-        client.setPhoneNumber(phone_number.getText().toString().trim());
-        client.setHeight(height.getText().toString().trim());
-        client.setAge(age.getText().toString().trim());
+    }
+
+    private void createNewAccount()  {
+        final User user = new User();
+        user.setUserId(userid);
+        user.setFirstName(firstName.getText().toString().trim());
+        user.setLastName(lastName.getText().toString().trim());
+        user.setPhoneNumber(phone_number.getText().toString().trim());
+        user.setHeight(height.getText().toString().trim());
+        user.setAge(age.getText().toString().trim());
         if(resultUri == null) {
             resultUri = Uri.parse("file:///data/user/0/com.pracainz20/cache/cropped103278948.jpg");
         }
-        client.setProfileImage(resultUri.toString().trim());
+        user.setProfileImage(resultUri.toString().trim());
 
         // update the user profile information in Firebase database.
-        if(resultUri==null||TextUtils.isEmpty(client.getFirstName()) || TextUtils.isEmpty(client.getLastName()) ||
-                TextUtils.isEmpty(client.getPhoneNumber())
-                || TextUtils.isEmpty(client.getHeight()) || TextUtils.isEmpty(client.getAge())){
+        if(resultUri==null||TextUtils.isEmpty(user.getFirstName()) || TextUtils.isEmpty(user.getLastName()) ||
+                TextUtils.isEmpty(user.getPhoneNumber())
+                || TextUtils.isEmpty(user.getHeight()) || TextUtils.isEmpty(user.getAge())){
             Toast.makeText(getApplicationContext(), "Niektóre pola zostały nie wypełnione", Toast.LENGTH_LONG).show();
         }
         mProgressDialog.setMessage("Creating Account...");
@@ -145,13 +145,11 @@ public class PersonalDetailActivity extends AppCompatActivity implements Navigat
             @Override
             public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
 
-                String userid = mAuth.getCurrentUser().getUid();
                 Log.d("USER_ID: ",userid);
-                Log.d("CLIENT_NAME : ",client.getFirstName());
+                Log.d("CLIENT_NAME : ", user.getFirstName());
 
-                DatabaseReference currenUserDb = mDatabaseReference.child(userid);
-                currenUserDb.setValue(client);
-                currenUserDb.child("profileImage").setValue(client.getProfileImage());
+                currenUserDb.setValue(user);
+                currenUserDb.child("profileImage").setValue(user.getProfileImage());
 
 
                 mProgressDialog.dismiss();
@@ -169,6 +167,7 @@ public class PersonalDetailActivity extends AppCompatActivity implements Navigat
 
     @Override
     protected void onStart() {
+        mProgressDialog.show();
         super.onStart();
 
         createAccountBtn.setOnClickListener(new View.OnClickListener() {
@@ -178,24 +177,23 @@ public class PersonalDetailActivity extends AppCompatActivity implements Navigat
             }
         });
 
-
-
         mDatabaseReference.addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                Log.d("Child_ADDED","wjescie do metody childAded");
 
-                mProgressDialog.show();
-                Client client = dataSnapshot.getValue(Client.class);
+                User user = dataSnapshot.getValue(User.class);
+                //Log.d("CLient_Age", user.getAge());
 
-                firstName.setText(client.getFirstName(), TextView.BufferType.EDITABLE);
-                lastName.setText(client.getLastName(), TextView.BufferType.EDITABLE);
-                phone_number.setText(client.getPhoneNumber(), TextView.BufferType.EDITABLE);
-                height.setText(client.getHeight(), TextView.BufferType.EDITABLE);
-                age.setText(client.getAge(), TextView.BufferType.EDITABLE);
-                if(client.getProfileImage()==null){
+                firstName.setText(user.getFirstName(), TextView.BufferType.EDITABLE);
+                lastName.setText(user.getLastName(), TextView.BufferType.EDITABLE);
+                phone_number.setText(user.getPhoneNumber(), TextView.BufferType.EDITABLE);
+                height.setText(user.getHeight(), TextView.BufferType.EDITABLE);
+                age.setText(user.getAge(), TextView.BufferType.EDITABLE);
+                if(user.getProfileImage()==null){
                     profilePic.setImageURI(Uri.parse("file:///data/user/0/com.pracainz20/cache/cropped103278948.jpg"));
                 }else{
-                    profilePic.setImageURI(Uri.parse(client.getProfileImage()));
+                    profilePic.setImageURI(Uri.parse(user.getProfileImage()));
                 }
 
                 mProgressDialog.dismiss();
@@ -441,4 +439,11 @@ public class PersonalDetailActivity extends AppCompatActivity implements Navigat
     }
 
 
+    public String getUserid() {
+        return userid;
+    }
+
+    public void setUserid(String userid) {
+        this.userid = userid;
+    }
 }

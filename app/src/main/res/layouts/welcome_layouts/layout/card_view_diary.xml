@@ -30,7 +30,9 @@
               card_view:layout_constraintEnd_toStartOf="@+id/textViewValue"
               card_view:layout_constraintHorizontal_bias="0.0"
               card_view:layout_constraintStart_toStartOf="parent"
-              card_view:layout_constraintTop_toTopOf="parent" />
+              card_view:layout_constraintTop_toTopOf="parent"
+              android:layout_marginRight="8dp"
+              android:layout_marginLeft="16dp" />
 
           <TextView
               android:id="@+id/textViewValue"
@@ -43,7 +45,8 @@
               android:textAppearance="?android:attr/textAppearanceMedium"
               card_view:layout_constraintBottom_toBottomOf="parent"
               card_view:layout_constraintEnd_toStartOf="@+id/unity_cardView_textView"
-              card_view:layout_constraintTop_toTopOf="parent" />
+              card_view:layout_constraintTop_toTopOf="parent"
+              android:layout_marginRight="8dp" />
 
           <TextView
               android:id="@+id/unity_cardView_textView"
@@ -56,7 +59,8 @@
               android:textAppearance="?android:attr/textAppearanceMedium"
               card_view:layout_constraintBottom_toBottomOf="parent"
               card_view:layout_constraintEnd_toEndOf="parent"
-              card_view:layout_constraintTop_toTopOf="parent" />
+              card_view:layout_constraintTop_toTopOf="parent"
+              android:layout_marginRight="8dp" />
       </android.support.constraint.ConstraintLayout>
 
     </android.support.v7.widget.CardView>

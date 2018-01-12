@@ -1,8 +1,10 @@
 package com.pracainz20.Activity;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -14,6 +16,7 @@ import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -22,8 +25,18 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.storage.StorageReference;
 import com.pracainz20.Adapter.WelcomeAdapter;
 import com.pracainz20.Data.WelcomeDB;
+import com.pracainz20.Model.User;
+import com.pracainz20.Model.UserParameter;
 import com.pracainz20.Model.WelcomeData;
 import com.pracainz20.R;
 
@@ -47,8 +60,22 @@ public class PersonalActivity extends AppCompatActivity implements NavigationVie
     private Integer current_id;
     private TextView textViewValue;
     RecyclerView.ViewHolder viewHolder;
-    private WelcomeDB welcomeDB;
+    private ProgressDialog mProgressDialog;
+    private String[] values={"", "", "", "","","","",""};
+    private String[] titles = {"Waga", "Obwód szyi", "Obwód bioder", "Obwód tali" ," Obwód klatki piersiowej","Obwód lewego bicepsa","Obwód prawego bicepsa","Zdjęcie sylwetki"};
+    private String[] units = {"kg", "cm", "cm", "cm","cm","cm","cm",""};
+    private Integer[] id_ = {0, 1, 2, 3,4,5,6,7};
 
+    //FIREBASE
+    private DatabaseReference mDatabaseReference;
+    private FirebaseDatabase mDatabase;
+    private StorageReference mFirebaseStorage;
+    private DataSnapshot dataSnapshot;
+    private FirebaseUser mUser;
+    private FirebaseAuth mAuth;
+    private DatabaseReference currenUserDb;
+    private String userid;
+    private UserParameter userParameter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -78,22 +105,14 @@ public class PersonalActivity extends AppCompatActivity implements NavigationVie
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
 
-        data = new ArrayList<WelcomeData>();
-        for (int i = 0; i < welcomeDB.getTitles().length; i++) {
-            data.add(new WelcomeData(
-                    welcomeDB.getTitles()[i],
-                    welcomeDB.getValues()[i],
-                    welcomeDB.getId_()[i],
-                    welcomeDB.getUnits()[i],
-                    welcomeDB.getUnityCardView()[i]
+        mAuth = FirebaseAuth.getInstance();
+        mUser = mAuth.getCurrentUser();
+        mDatabase = FirebaseDatabase.getInstance();
+        mDatabaseReference = mDatabase.getReference().child("MUsers/MUsersParameters");
+        userid = mUser.getUid();
+        currenUserDb = mDatabaseReference.child(userid);
+        mProgressDialog = new ProgressDialog(this);
 
-
-            ));
-        }
-
-
-        adapter = new WelcomeAdapter(data);
-        recyclerView.setAdapter(adapter);
     }
 
 
@@ -115,6 +134,8 @@ public class PersonalActivity extends AppCompatActivity implements NavigationVie
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
+
+
 
 
     public class MyOnClickListener implements View.OnClickListener {
@@ -139,12 +160,8 @@ public class PersonalActivity extends AppCompatActivity implements NavigationVie
             userInputDialogTextViewTitle = (TextView) mView.findViewById(R.id.dialogTitle);
             textViewUnit = (TextView) mView.findViewById(R.id.dialogUnit);
 
-
-            //String dialogTitle= getValue(v).keySet().toString();
-            //String dialog = dialogTitle.substring(1,dialogTitle.length()-1);
-            userInputDialogTextViewTitle.setText(welcomeDB.getTitles()[getValue(v)]);
-            textViewUnit.setText(welcomeDB.getUnits()[getValue(v)]);
-            //userInputDialogEditText.setText(WelcomeDB.values[getValue(v)]);
+            userInputDialogTextViewTitle.setText(titles[getValue(v)]);
+            textViewUnit.setText(units[getValue(v)]);
             current_id = getValue(v);
             viewHolder
                     = recyclerView.findViewHolderForPosition(current_id);
@@ -156,12 +173,12 @@ public class PersonalActivity extends AppCompatActivity implements NavigationVie
                     .setPositiveButton("Wstaw", new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialogBox, int id) {
 
-
                             currentValue = String.valueOf(userInputDialogEditText.getText());
                             ////welcome DB
-                            welcomeDB.getValues()[current_id]=currentValue;
-                            userInputDialogEditText.setText(welcomeDB.getValues()[current_id]);
-                            textViewValue.setText(welcomeDB.getValues()[current_id]);
+                            values[current_id]=currentValue;
+                            userInputDialogEditText.setText(values[current_id]);
+                            textViewValue.setText( values[current_id]);
+                            currenUserDb.child(mapper(current_id)).setValue(values[current_id]);
 
                         }
                     })
@@ -186,19 +203,93 @@ public class PersonalActivity extends AppCompatActivity implements NavigationVie
                     = (TextView) viewHolder.itemView.findViewById(R.id.textViewTitle);
             String selectedTitle = (String) textViewTitle.getText();
             int selectedItemId = -1;
-            for (int i = 0; i < welcomeDB.getTitles().length; i++) {
-                if (selectedTitle.equals(welcomeDB.getTitles()[i])) {
-                    selectedItemId = welcomeDB.getId_()[i];
+            for (int i = 0; i < 8; i++) {
+                if (selectedTitle.equals(titles[i])) {
+                    selectedItemId = getId_()[i];
                 }
             }
             Map<String,String> welcomeData = new HashMap<>();
-            welcomeData.put(welcomeDB.getTitles()[selectedItemId],welcomeDB.getValues()[selectedItemId]);
+            welcomeData.put(titles[selectedItemId],values[selectedItemId]);
 
             return selectedItemId;
         }
 
 
     }
+
+    private String mapper(Integer selectedItemId){
+        String columnName=null;
+        if(selectedItemId==0){columnName="weight";}
+        else if(selectedItemId==1){columnName="neckCircuit";}
+        else if(selectedItemId==2){columnName="hipCircuit";}
+        else if(selectedItemId==3){columnName="waistCircuit";}
+        else if(selectedItemId==4){columnName="chestCircuit";}
+        else if(selectedItemId==5){columnName="leftBicepsCircuit";}
+        else if(selectedItemId==6){columnName="rightBicepsCircuit";}
+        else if(selectedItemId==7){columnName="imageOfProfile";}
+        return columnName;
+    }
+
+    @Override
+    protected void onStart() {
+        mProgressDialog.show();
+        super.onStart();
+
+        mDatabaseReference.addChildEventListener(new ChildEventListener() {
+            @Override
+            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                Log.d("Child_ADDED","wjescie do metody childAded");
+
+               userParameter = dataSnapshot.getValue(UserParameter.class);
+               values[0]=userParameter.getWeight();
+//               Log.d("WAGA:",values[0]);
+               values[1]=userParameter.getNeckCircuit();
+               values[2]=userParameter.getHipCircuit();
+               values[3]=userParameter.getWaistCircuit();
+               values[4]=userParameter.getChestCircuit();
+               values[5]=userParameter.getLeftBicepsCircuit();
+               values[6]=userParameter.getRightBicepsCircuit();
+               values[7]=userParameter.getImageOfProfile();
+                data = new ArrayList<WelcomeData>();
+                for (int i = 0; i < 8; i++) {
+                    data.add(new WelcomeData(
+                            getTitles()[i],
+                            getValues()[i],
+                            getUnits()[i]
+                    ));
+                }
+
+
+                adapter = new WelcomeAdapter(data);
+                recyclerView.setAdapter(adapter);
+                mProgressDialog.dismiss();
+
+            }
+
+            @Override
+            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+
+            }
+
+            @Override
+            public void onChildRemoved(DataSnapshot dataSnapshot) {
+
+            }
+
+            @Override
+            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+
+    }
+
+
 
     @Override
     public void onBackPressed() {
@@ -232,9 +323,21 @@ public class PersonalActivity extends AppCompatActivity implements NavigationVie
         return super.onOptionsItemSelected(item);
     }
 
+    public String[] getValues() {
+        return values;
+    }
 
+    public void setValues(String[] values) {
+        this.values = values;
+    }
 
+    public Integer[] getId_() {
+        return id_;
+    }
 
+    public void setId_(Integer[] id_) {
+        this.id_ = id_;
+    }
     public static RecyclerView.Adapter getAdapter() {
         return adapter;
     }
@@ -272,7 +375,7 @@ public class PersonalActivity extends AppCompatActivity implements NavigationVie
     }
 
     public static void setMyOnClickListener(View.OnClickListener myOnClickListener) {
-        DiaryActivity.myOnClickListener = myOnClickListener;
+        PersonalActivity.myOnClickListener = myOnClickListener;
     }
 
     public Context getC() {
@@ -343,12 +446,101 @@ public class PersonalActivity extends AppCompatActivity implements NavigationVie
         this.viewHolder = viewHolder;
     }
 
-    public WelcomeDB getWelcomeDB() {
-        return welcomeDB;
+    public ProgressDialog getmProgressDialog() {
+        return mProgressDialog;
     }
 
-    public void setWelcomeDB(WelcomeDB welcomeDB) {
-        this.welcomeDB = welcomeDB;
+    public void setmProgressDialog(ProgressDialog mProgressDialog) {
+        this.mProgressDialog = mProgressDialog;
     }
 
+    public DatabaseReference getmDatabaseReference() {
+        return mDatabaseReference;
+    }
+
+    public void setmDatabaseReference(DatabaseReference mDatabaseReference) {
+        this.mDatabaseReference = mDatabaseReference;
+    }
+
+    public FirebaseDatabase getmDatabase() {
+        return mDatabase;
+    }
+
+    public void setmDatabase(FirebaseDatabase mDatabase) {
+        this.mDatabase = mDatabase;
+    }
+
+    public StorageReference getmFirebaseStorage() {
+        return mFirebaseStorage;
+    }
+
+    public void setmFirebaseStorage(StorageReference mFirebaseStorage) {
+        this.mFirebaseStorage = mFirebaseStorage;
+    }
+
+    public DataSnapshot getDataSnapshot() {
+        return dataSnapshot;
+    }
+
+    public void setDataSnapshot(DataSnapshot dataSnapshot) {
+        this.dataSnapshot = dataSnapshot;
+    }
+
+    public FirebaseUser getmUser() {
+        return mUser;
+    }
+
+    public void setmUser(FirebaseUser mUser) {
+        this.mUser = mUser;
+    }
+
+    public FirebaseAuth getmAuth() {
+        return mAuth;
+    }
+
+    public void setmAuth(FirebaseAuth mAuth) {
+        this.mAuth = mAuth;
+    }
+
+    public DatabaseReference getCurrenUserDb() {
+        return currenUserDb;
+    }
+
+    public void setCurrenUserDb(DatabaseReference currenUserDb) {
+        this.currenUserDb = currenUserDb;
+    }
+
+    public String getUserid() {
+        return userid;
+    }
+
+    public void setUserid(String userid) {
+        this.userid = userid;
+    }
+
+
+
+    public UserParameter getUserParameter() {
+        return userParameter;
+    }
+
+    public void setUserParameter(UserParameter userParameter) {
+        this.userParameter = userParameter;
+    }
+
+    public String[] getTitles() {
+        return titles;
+    }
+
+    public void setTitles(String[] titles) {
+        this.titles = titles;
+    }
+
+    public String[] getUnits() {
+        return units;
+    }
+
+    public void setUnits(String[] units) {
+        this.units = units;
+    }
 }

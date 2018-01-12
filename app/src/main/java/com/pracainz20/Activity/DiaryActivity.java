@@ -41,6 +41,7 @@ public class DiaryActivity extends AppCompatActivity {
     private TextView textViewValue;
     RecyclerView.ViewHolder viewHolder;
     private WelcomeDB welcomeDB;
+    private String[] values;
 
 
     @Override
@@ -66,10 +67,9 @@ public class DiaryActivity extends AppCompatActivity {
         for (int i = 0; i < welcomeDB.getTitles().length; i++) {
             data.add(new WelcomeData(
                     welcomeDB.getTitles()[i],
-                    welcomeDB.getValues()[i],
-                    welcomeDB.getId_()[i],
-                    welcomeDB.getUnits()[i],
-                    welcomeDB.getUnityCardView()[i]
+                    values[i],
+                    welcomeDB.getUnits()[i]
+
             ));
         }
 
@@ -84,6 +84,14 @@ public class DiaryActivity extends AppCompatActivity {
 
     public void setWelcomeDB(WelcomeDB welcomeDB) {
         this.welcomeDB = welcomeDB;
+    }
+
+    public String[] getValues() {
+        return values;
+    }
+
+    public void setValues(String[] values) {
+        this.values = values;
     }
 
 
@@ -129,9 +137,9 @@ public class DiaryActivity extends AppCompatActivity {
 
                             currentValue = String.valueOf(userInputDialogEditText.getText());
                             ////welcome DB
-                            welcomeDB.getValues()[current_id]=currentValue;
-                            userInputDialogEditText.setText(welcomeDB.getValues()[current_id]);
-                            textViewValue.setText(welcomeDB.getValues()[current_id]);
+                            values[current_id]=currentValue;
+                            userInputDialogEditText.setText(values[current_id]);
+                            textViewValue.setText(values[current_id]);
 
                         }
                     })
@@ -162,7 +170,7 @@ public class DiaryActivity extends AppCompatActivity {
                 }
             }
             Map<String,String> welcomeData = new HashMap<>();
-            welcomeData.put(welcomeDB.getTitles()[selectedItemId],welcomeDB.getValues()[selectedItemId]);
+            welcomeData.put(welcomeDB.getTitles()[selectedItemId],values[selectedItemId]);
 
             return selectedItemId;
         }

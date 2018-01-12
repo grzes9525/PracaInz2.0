@@ -1,58 +1,37 @@
 package com.pracainz20.Data;
 
 /**
- * Created by Grzechu on 24.10.2017.
+ * Created by Grzechu on 11.01.2018.
  */
 
 public class WelcomeDB {
-    private String[] titles = {"Imię","Nazwisko","Numer telefonu","Wzrost","Wiek"};
-    private String[] values = {"Adam", "Adamecki", "123456789","175","25"};
-    private String[] units = {"kg", "kg", "kg na tydz"," "," "};
-    private String[] unityCardView = {"","","","cm","lat"};
-    private Integer[] id_ = {0, 1, 2, 3,4};
 
-    public String[] getTitles() {
+    static String[] titles = {"Waga", "Obwód szyi", "Obwód bioder", "Obwód tali" ," Obwód klatki piersiowej","Obwód lewego bicepsa","Obwód prawego bicepsa","Zdjęcie sylwetki"};
+    static String[] units = {"kg", "cm", "cm", "cm","cm","cm","cm",""};
+    static Integer[] id_ = {0, 1, 2, 3,4,5,6,7};
+
+    public static String[] getTitles() {
         return titles;
     }
 
-    public void setTitles(String[] titles) {
-        this.titles = titles;
+    public static void setTitles(String[] titles) {
+        WelcomeDB.titles = titles;
     }
 
-    public String[] getValues() {
-        return values;
-    }
 
-    public void setValues(String[] values) {
-        this.values = values;
-    }
-
-    public String[] getUnits() {
+    public static String[] getUnits() {
         return units;
     }
 
-    public void setUnits(String[] units) {
-        this.units = units;
+    public static void setUnits(String[] units) {
+        WelcomeDB.units = units;
     }
 
-    public String[] getUnityCardView() {
-        return unityCardView;
-    }
-
-    public void setUnityCardView(String[] unityCardView) {
-        this.unityCardView = unityCardView;
-    }
-
-    public Integer[] getId_() {
+    public static Integer[] getId_() {
         return id_;
     }
 
-    public void setId_(Integer[] id_) {
-        this.id_ = id_;
+    public static void setId_(Integer[] id_) {
+        WelcomeDB.id_ = id_;
     }
-
-
-
-
-
 }
