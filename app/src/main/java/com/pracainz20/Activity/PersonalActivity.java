@@ -105,10 +105,27 @@ public class PersonalActivity extends AppCompatActivity implements NavigationVie
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
 
+
+
+
+
+        data = new ArrayList<WelcomeData>();
+        for (int i = 0; i < 8; i++) {
+            data.add(new WelcomeData(
+                    getTitles()[i],
+                    getValues()[i],
+                    getUnits()[i]
+            ));
+        }
+
+
+        adapter = new WelcomeAdapter(data);
+        recyclerView.setAdapter(adapter);
+
         mAuth = FirebaseAuth.getInstance();
         mUser = mAuth.getCurrentUser();
         mDatabase = FirebaseDatabase.getInstance();
-        mDatabaseReference = mDatabase.getReference().child("MUsers/MUsersParameters");
+        mDatabaseReference = mDatabase.getReference().child("MUsersParameters");
         userid = mUser.getUid();
         currenUserDb = mDatabaseReference.child(userid);
         mProgressDialog = new ProgressDialog(this);
@@ -232,7 +249,6 @@ public class PersonalActivity extends AppCompatActivity implements NavigationVie
 
     @Override
     protected void onStart() {
-        mProgressDialog.show();
         super.onStart();
 
         mDatabaseReference.addChildEventListener(new ChildEventListener() {
@@ -240,29 +256,37 @@ public class PersonalActivity extends AppCompatActivity implements NavigationVie
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
                 Log.d("Child_ADDED","wjescie do metody childAded");
 
-               userParameter = dataSnapshot.getValue(UserParameter.class);
-               values[0]=userParameter.getWeight();
-//               Log.d("WAGA:",values[0]);
-               values[1]=userParameter.getNeckCircuit();
-               values[2]=userParameter.getHipCircuit();
-               values[3]=userParameter.getWaistCircuit();
-               values[4]=userParameter.getChestCircuit();
-               values[5]=userParameter.getLeftBicepsCircuit();
-               values[6]=userParameter.getRightBicepsCircuit();
-               values[7]=userParameter.getImageOfProfile();
-                data = new ArrayList<WelcomeData>();
-                for (int i = 0; i < 8; i++) {
-                    data.add(new WelcomeData(
-                            getTitles()[i],
-                            getValues()[i],
-                            getUnits()[i]
-                    ));
+                if(dataSnapshot!=null){
+
+                    mProgressDialog.show();
+
+                }
+                try{
+                    userParameter = dataSnapshot.getValue(UserParameter.class);
+                    values[0]=userParameter.getWeight();
+                    Log.d("WAGA:",values[0]);
+                    values[1]=userParameter.getNeckCircuit();
+                    values[2]=userParameter.getHipCircuit();
+                    values[3]=userParameter.getWaistCircuit();
+                    values[4]=userParameter.getChestCircuit();
+                    values[5]=userParameter.getLeftBicepsCircuit();
+                    values[6]=userParameter.getRightBicepsCircuit();
+                    values[7]=userParameter.getImageOfProfile();
+
+                }catch (NullPointerException e){
+                    Log.d("NULL_PARA","null w para");
+                    for(int i =0;i<8;i++){
+                        values[i]="";
+                    }
                 }
 
 
-                adapter = new WelcomeAdapter(data);
-                recyclerView.setAdapter(adapter);
-                mProgressDialog.dismiss();
+
+                if(dataSnapshot!=null){
+
+                    mProgressDialog.dismiss();
+
+                }
 
             }
 

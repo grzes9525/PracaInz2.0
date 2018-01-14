@@ -82,6 +82,8 @@ public class PersonalDetailActivity extends AppCompatActivity implements Navigat
 
         mDatabase = FirebaseDatabase.getInstance();
         mDatabaseReference = mDatabase.getReference().child("MUsers");
+        mDatabaseReference.keepSynced(true);
+        Log.i("INFO_MREFERENCEDB", mDatabaseReference.toString());
         userid = mUser.getUid();
         currenUserDb = mDatabaseReference.child(userid);
 
@@ -109,10 +111,14 @@ public class PersonalDetailActivity extends AppCompatActivity implements Navigat
             }
         });
 
+        createAccountBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                createNewAccount();
+            }
+        });
 
-    }
 
-    private void loadDataToOnCreate(){
 
     }
 
@@ -167,23 +173,22 @@ public class PersonalDetailActivity extends AppCompatActivity implements Navigat
 
     @Override
     protected void onStart() {
-        mProgressDialog.show();
         super.onStart();
 
-        createAccountBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                createNewAccount();
-            }
-        });
+
 
         mDatabaseReference.addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
                 Log.d("Child_ADDED","wjescie do metody childAded");
 
+                if(dataSnapshot!=null){
+
+                    mProgressDialog.show();
+
+                }
                 User user = dataSnapshot.getValue(User.class);
-                //Log.d("CLient_Age", user.getAge());
+
 
                 firstName.setText(user.getFirstName(), TextView.BufferType.EDITABLE);
                 lastName.setText(user.getLastName(), TextView.BufferType.EDITABLE);
@@ -196,7 +201,11 @@ public class PersonalDetailActivity extends AppCompatActivity implements Navigat
                     profilePic.setImageURI(Uri.parse(user.getProfileImage()));
                 }
 
-                mProgressDialog.dismiss();
+                if(dataSnapshot!=null){
+
+                    mProgressDialog.dismiss();
+
+                }
             }
 
             @Override

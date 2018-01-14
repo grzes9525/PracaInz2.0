@@ -13,6 +13,10 @@ public class UserParameter {
     private String leftBicepsCircuit;
     private String rightBicepsCircuit;
     private String imageOfProfile;
+    private String userId;
+
+    public UserParameter() {
+    }
 
     public String getWeight() {
         return weight;
@@ -76,5 +80,13 @@ public class UserParameter {
 
     public void setImageOfProfile(String imageOfProfile) {
         this.imageOfProfile = imageOfProfile;
+    }
+
+    public String getUserId() {
+        return userId;
+    }
+
+    public void setUserId(String userId) {
+        this.userId = userId;
     }
 }
