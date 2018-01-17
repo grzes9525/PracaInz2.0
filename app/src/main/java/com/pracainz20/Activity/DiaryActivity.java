@@ -41,7 +41,10 @@ public class DiaryActivity extends AppCompatActivity {
     private TextView textViewValue;
     RecyclerView.ViewHolder viewHolder;
     private WelcomeDB welcomeDB;
-    private String[] values;
+
+    private String[] values={"", "", "", "",""};
+    private String[] titles = {"Sniadanie", "Obiad", "Kolacja", "Trening" ," Woda"};
+    private String[] units = {"kcla", "kcla", "kcla", "kcla","l"};
 
 
     @Override
@@ -64,12 +67,11 @@ public class DiaryActivity extends AppCompatActivity {
         recyclerView.setItemAnimator(new DefaultItemAnimator());
 
         data = new ArrayList<WelcomeData>();
-        for (int i = 0; i < welcomeDB.getTitles().length; i++) {
+        for (int i = 0; i < 5; i++) {
             data.add(new WelcomeData(
-                    welcomeDB.getTitles()[i],
-                    values[i],
-                    welcomeDB.getUnits()[i]
-
+                    getTitles()[i],
+                    getValues()[i],
+                    getUnits()[i]
             ));
         }
 
@@ -92,6 +94,22 @@ public class DiaryActivity extends AppCompatActivity {
 
     public void setValues(String[] values) {
         this.values = values;
+    }
+
+    public String[] getTitles() {
+        return titles;
+    }
+
+    public void setTitles(String[] titles) {
+        this.titles = titles;
+    }
+
+    public String[] getUnits() {
+        return units;
+    }
+
+    public void setUnits(String[] units) {
+        this.units = units;
     }
 
 

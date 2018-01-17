@@ -93,6 +93,10 @@ public class MainActivity extends AppCompatActivity
             startActivity(new Intent(getApplicationContext(), PersonalActivity.class));
             finish();
         }
+        if (id == R.id.nav_diary) {
+            startActivity(new Intent(getApplicationContext(),DiaryActivity.class));
+            finish();
+        }
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;

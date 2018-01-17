@@ -177,17 +177,19 @@ public class PersonalDetailActivity extends AppCompatActivity implements Navigat
 
 
 
-        mDatabaseReference.addChildEventListener(new ChildEventListener() {
+        currenUserDb.addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
                 Log.d("Child_ADDED","wjescie do metody childAded");
 
-                if(dataSnapshot!=null){
 
-                    mProgressDialog.show();
 
-                }
+                mProgressDialog.show();
+//nie dziala przez curren user db w referencnii
                 User user = dataSnapshot.getValue(User.class);
+                Log.d("USER:","user z datasnapshot"+user.toString());
+                Log.d("USER:","user imie z datasnapshot"+user.getFirstName().toString());
+
 
 
                 firstName.setText(user.getFirstName(), TextView.BufferType.EDITABLE);
@@ -201,11 +203,9 @@ public class PersonalDetailActivity extends AppCompatActivity implements Navigat
                     profilePic.setImageURI(Uri.parse(user.getProfileImage()));
                 }
 
-                if(dataSnapshot!=null){
+                mProgressDialog.dismiss();
 
-                    mProgressDialog.dismiss();
 
-                }
             }
 
             @Override

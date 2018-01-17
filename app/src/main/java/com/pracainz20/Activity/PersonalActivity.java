@@ -1,10 +1,10 @@
 package com.pracainz20.Activity;
 
+import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -23,6 +23,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
 import com.google.firebase.auth.FirebaseAuth;
@@ -34,13 +35,13 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.storage.StorageReference;
 import com.pracainz20.Adapter.WelcomeAdapter;
-import com.pracainz20.Data.WelcomeDB;
-import com.pracainz20.Model.User;
 import com.pracainz20.Model.UserParameter;
 import com.pracainz20.Model.WelcomeData;
 import com.pracainz20.R;
+import com.pracainz20.Util.CalendarManagement;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -52,6 +53,9 @@ public class PersonalActivity extends AppCompatActivity implements NavigationVie
     private static ArrayList<WelcomeData> data;
     static View.OnClickListener myOnClickListener;
     final Context c = this;
+    private TextView dateConfirmation;
+    private ImageButton nextDate;
+    private ImageButton previousDate;
     private Button confirmationDiaryButton;
     private EditText userInputDialogEditText;
     private TextView userInputDialogTextViewTitle;
@@ -65,6 +69,8 @@ public class PersonalActivity extends AppCompatActivity implements NavigationVie
     private String[] titles = {"Waga", "Obwód szyi", "Obwód bioder", "Obwód tali" ," Obwód klatki piersiowej","Obwód lewego bicepsa","Obwód prawego bicepsa","Zdjęcie sylwetki"};
     private String[] units = {"kg", "cm", "cm", "cm","cm","cm","cm",""};
     private Integer[] id_ = {0, 1, 2, 3,4,5,6,7};
+    private Integer dayInDB=0;
+    private int counter_entries;
 
     //FIREBASE
     private DatabaseReference mDatabaseReference;
@@ -96,6 +102,10 @@ public class PersonalActivity extends AppCompatActivity implements NavigationVie
 
         confirmationDiaryButton = (Button) findViewById(R.id.buttonConfirmationPersonal);
 
+        dateConfirmation = (TextView) findViewById(R.id.date_personal_textView);
+        nextDate = (ImageButton) findViewById(R.id.right_date_personal_button);
+        previousDate = (ImageButton) findViewById(R.id.left_date_personal_button);
+
         myOnClickListener = new MyOnClickListener(this);
 
         recyclerView = (RecyclerView) findViewById(R.id.my_recycler_view_personal);
@@ -105,10 +115,18 @@ public class PersonalActivity extends AppCompatActivity implements NavigationVie
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
 
+        mAuth = FirebaseAuth.getInstance();
+        mUser = mAuth.getCurrentUser();
+        mDatabase = FirebaseDatabase.getInstance();
+        mDatabaseReference = mDatabase.getReference();
+        userid = mUser.getUid();
+        currenUserDb = mDatabaseReference.child("MUsersParameters").child(userid);
+        mProgressDialog = new ProgressDialog(this);
 
+        CalendarManagement calendarManagement = new CalendarManagement();
+        dateConfirmation.setText(calendarManagement.getDate(dayInDB));
 
-
-
+        Log.d("DAYINDB",getDayInDB().toString());
         data = new ArrayList<WelcomeData>();
         for (int i = 0; i < 8; i++) {
             data.add(new WelcomeData(
@@ -118,18 +136,27 @@ public class PersonalActivity extends AppCompatActivity implements NavigationVie
             ));
         }
 
-
         adapter = new WelcomeAdapter(data);
         recyclerView.setAdapter(adapter);
 
-        mAuth = FirebaseAuth.getInstance();
-        mUser = mAuth.getCurrentUser();
-        mDatabase = FirebaseDatabase.getInstance();
-        mDatabaseReference = mDatabase.getReference().child("MUsersParameters");
-        userid = mUser.getUid();
-        currenUserDb = mDatabaseReference.child(userid);
-        mProgressDialog = new ProgressDialog(this);
 
+
+
+
+
+        nextDate.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                updateNextDay();
+            }
+        });
+
+        previousDate.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                updatePreviousDay();
+            }
+        });
     }
 
 
@@ -154,7 +181,6 @@ public class PersonalActivity extends AppCompatActivity implements NavigationVie
 
 
 
-
     public class MyOnClickListener implements View.OnClickListener {
 
         private final Context context;
@@ -166,7 +192,6 @@ public class PersonalActivity extends AppCompatActivity implements NavigationVie
 
         @Override
         public void onClick(View v) {
-
 
             LayoutInflater layoutInflaterAndroid = LayoutInflater.from(c);
             View mView = layoutInflaterAndroid.inflate(R.layout.dialog_diary, null);
@@ -190,12 +215,16 @@ public class PersonalActivity extends AppCompatActivity implements NavigationVie
                     .setPositiveButton("Wstaw", new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialogBox, int id) {
 
+                            CalendarManagement calendarManagement = new CalendarManagement();
                             currentValue = String.valueOf(userInputDialogEditText.getText());
                             ////welcome DB
                             values[current_id]=currentValue;
                             userInputDialogEditText.setText(values[current_id]);
                             textViewValue.setText( values[current_id]);
-                            currenUserDb.child(mapper(current_id)).setValue(values[current_id]);
+                            methodsMapper(current_id,values[current_id]);
+                            Map<String, Object> dataToSave = new HashMap<>();
+                            dataToSave.put(mapper(current_id), values[current_id]);
+                            currenUserDb.child(calendarManagement.getDateToSaveDatabase(dayInDB)).updateChildren(dataToSave);
 
                         }
                     })
@@ -247,24 +276,160 @@ public class PersonalActivity extends AppCompatActivity implements NavigationVie
         return columnName;
     }
 
+    private void methodsMapper(Integer selectedItemId, String currentValue){
+        userParameter = new UserParameter();
+
+        switch(selectedItemId) {
+            case 0:
+                userParameter.setWeight(currentValue);
+                break;
+            case 1:
+                userParameter.setNeckCircuit(currentValue);
+                break;
+            case 2:
+                userParameter.setHipCircuit(currentValue);
+                break;
+            case 3:
+                userParameter.setWaistCircuit(currentValue);
+                break;
+            case 4:
+                userParameter.setChestCircuit(currentValue);
+                break;
+            case 5:
+                userParameter.setLeftBicepsCircuit(currentValue);
+                break;
+            case 6:
+                userParameter.setRightBicepsCircuit(currentValue);
+                break;
+            case 7:
+                userParameter.setImageOfProfile(currentValue);
+                break;
+        }
+    }
+
+
+    private void updateNextDay(){
+        dayInDB = dayInDB +1;
+
+        onStart();
+    }
+
+    private void updatePreviousDay(){
+        dayInDB = dayInDB-1;
+
+        onStart();
+
+    }
+
     @Override
     protected void onStart() {
         super.onStart();
+        Log.d("DAYINDBinONstart",getDayInDB().toString());
+        CalendarManagement calendarManagement = new CalendarManagement();
+        dateConfirmation.setText(calendarManagement.getDate(dayInDB));
+        counter_entries=0;
 
-        mDatabaseReference.addChildEventListener(new ChildEventListener() {
+        Log.d("CAELNDARDAYINDB", calendarManagement.getDateToSaveDatabase(dayInDB));
+        Log.d("REFdoUSRid", mDatabaseReference.child("MUsersParameters").child(userid).getKey().toString());
+        Log.d("REFdoDaty", mDatabaseReference.child("MUsersParameters").child(userid).child(calendarManagement.getDateToSaveDatabase(dayInDB)).getDatabase().toString());
+
+        currenUserDb.child(calendarManagement.getDateToSaveDatabase(dayInDB)).addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                counter_entries=counter_entries+1;
                 Log.d("Child_ADDED","wjescie do metody childAded");
-
-                if(dataSnapshot!=null){
-
+                if(!((Activity) c).isFinishing())
+                {
                     mProgressDialog.show();
-
                 }
+                Map<String, String> dataToSave = new HashMap<>();
                 try{
+
+                    dataToSave.put("weight",dataSnapshot.child("weight").getValue(String.class));
+                    dataToSave.put("neckCircuit",dataSnapshot.child("neckCircuit").getValue(String.class));
+                    dataToSave.put("hipCircuit",dataSnapshot.child("hipCircuit").getValue(String.class));
+                    dataToSave.put("waistCircuit",dataSnapshot.child("waistCircuit").getValue(String.class));
+                    dataToSave.put("chestCircuit",dataSnapshot.child("chestCircuit").getValue(String.class));
+                    dataToSave.put("leftBicepsCircuit",dataSnapshot.child("leftBicepsCircuit").getValue(String.class));
+                    dataToSave.put("rightBicepsCircuit",dataSnapshot.child("rightBicepsCircuit").getValue(String.class));
+                    dataToSave.put("imageOfProfile",dataSnapshot.child("imageOfProfile").getValue(String.class));
+                    /*
                     userParameter = dataSnapshot.getValue(UserParameter.class);
+
                     values[0]=userParameter.getWeight();
                     Log.d("WAGA:",values[0]);
+
+                    values[1]=userParameter.getNeckCircuit();
+                    values[2]=userParameter.getHipCircuit();
+                    values[3]=userParameter.getWaistCircuit();
+                    values[4]=userParameter.getChestCircuit();
+                    values[5]=userParameter.getLeftBicepsCircuit();
+                    values[6]=userParameter.getRightBicepsCircuit();
+                    values[7]=userParameter.getImageOfProfile();
+                    */
+                }catch (Throwable e){
+                    Log.d("NULL_PARA","null w para");
+
+                }
+
+
+                data = new ArrayList<WelcomeData>();
+                for (int i = 0; i < 8; i++) {
+                   values[i]=dataToSave.get(mapper(i));
+                    data.add(new WelcomeData(
+                            getTitles()[i],
+                            getValues()[i],
+                            getUnits()[i]
+                    ));
+                }
+
+
+                adapter = new WelcomeAdapter(data);
+                recyclerView.setAdapter(adapter);
+
+
+                if(!((Activity) c).isFinishing())
+                {
+                    mProgressDialog.dismiss();
+                }
+
+
+            }
+
+            @Override
+            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+                Log.d("child","chand");
+
+            }
+
+            @Override
+            public void onChildRemoved(DataSnapshot dataSnapshot) {
+                Log.d("child","remove");
+
+            }
+
+            @Override
+            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+                Log.d("child","moved");
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                Log.d("child","cancled");
+                counter_entries=counter_entries+1;
+                Log.d("Child_ADDED","wjescie do metody childAded");
+                if(!((Activity) c).isFinishing())
+                {
+                    mProgressDialog.show();
+                }
+
+                try{
+                    userParameter = dataSnapshot.getValue(UserParameter.class);
+
+                    values[0]=userParameter.getWeight();
+                    Log.d("WAGA:",values[0]);
+
                     values[1]=userParameter.getNeckCircuit();
                     values[2]=userParameter.getHipCircuit();
                     values[3]=userParameter.getWaistCircuit();
@@ -273,43 +438,57 @@ public class PersonalActivity extends AppCompatActivity implements NavigationVie
                     values[6]=userParameter.getRightBicepsCircuit();
                     values[7]=userParameter.getImageOfProfile();
 
-                }catch (NullPointerException e){
+                }catch (Throwable e){
                     Log.d("NULL_PARA","null w para");
-                    for(int i =0;i<8;i++){
+
+                }
+
+
+                Log.d("values_po_try",values[0]);
+                data = new ArrayList<WelcomeData>();
+                for (int i = 0; i < 8; i++) {
+                    if(values[i]==null){
                         values[i]="";
                     }
+
+                    data.add(new WelcomeData(
+                            getTitles()[i],
+                            getValues()[i],
+                            getUnits()[i]
+                    ));
                 }
 
 
+                adapter = new WelcomeAdapter(data);
+                recyclerView.setAdapter(adapter);
 
-                if(dataSnapshot!=null){
-
+                /*
+                if(!((Activity) c).isFinishing())
+                {
                     mProgressDialog.dismiss();
-
                 }
-
-            }
-
-            @Override
-            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-
-            }
-
-            @Override
-            public void onChildRemoved(DataSnapshot dataSnapshot) {
-
-            }
-
-            @Override
-            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
-
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
+                */
 
             }
         });
+        if(counter_entries==0){
+            data = new ArrayList<WelcomeData>();
+            for (int i = 0; i < 8; i++) {
+
+                    values[i]="";
+
+
+                data.add(new WelcomeData(
+                        getTitles()[i],
+                        getValues()[i],
+                        getUnits()[i]
+                ));
+            }
+
+
+            adapter = new WelcomeAdapter(data);
+            recyclerView.setAdapter(adapter);
+        }
 
     }
 
@@ -567,4 +746,12 @@ public class PersonalActivity extends AppCompatActivity implements NavigationVie
     public void setUnits(String[] units) {
         this.units = units;
     }
+    public Integer getDayInDB() {
+        return dayInDB;
+    }
+
+    public void setDayInDB(Integer dayInDB) {
+        this.dayInDB = dayInDB;
+    }
+
 }

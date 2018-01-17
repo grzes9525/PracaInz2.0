@@ -13,6 +13,7 @@ public class UserParameter {
     private String leftBicepsCircuit;
     private String rightBicepsCircuit;
     private String imageOfProfile;
+    private Integer day;
     private String userId;
 
     public UserParameter() {
@@ -88,5 +89,13 @@ public class UserParameter {
 
     public void setUserId(String userId) {
         this.userId = userId;
+    }
+
+    public Integer getDay() {
+        return day;
+    }
+
+    public void setDay(Integer day) {
+        this.day = day;
     }
 }
