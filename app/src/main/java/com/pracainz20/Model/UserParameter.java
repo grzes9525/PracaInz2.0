@@ -15,6 +15,7 @@ public class UserParameter {
     private String imageOfProfile;
     private Integer day;
     private String userId;
+    private String key;
 
     public UserParameter() {
     }
@@ -98,4 +99,15 @@ public class UserParameter {
     public void setDay(Integer day) {
         this.day = day;
     }
+
+    public String getKey() {
+        return key;
+    }
+
+    public void setKey(String key) {
+        this.key = key;
+    }
+
+
+
 }

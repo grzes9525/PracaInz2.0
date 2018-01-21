@@ -33,6 +33,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.StorageReference;
 import com.pracainz20.Adapter.WelcomeAdapter;
 import com.pracainz20.Model.UserParameter;
@@ -43,6 +44,7 @@ import com.pracainz20.Util.CalendarManagement;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class PersonalActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
@@ -71,6 +73,9 @@ public class PersonalActivity extends AppCompatActivity implements NavigationVie
     private Integer[] id_ = {0, 1, 2, 3,4,5,6,7};
     private Integer dayInDB=0;
     private int counter_entries;
+    private CalendarManagement calendarManagement;
+    private Map<String,String> dataToSave;
+
 
     //FIREBASE
     private DatabaseReference mDatabaseReference;
@@ -82,6 +87,7 @@ public class PersonalActivity extends AppCompatActivity implements NavigationVie
     private DatabaseReference currenUserDb;
     private String userid;
     private UserParameter userParameter;
+    private List<UserParameter> userParameters;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -122,9 +128,9 @@ public class PersonalActivity extends AppCompatActivity implements NavigationVie
         userid = mUser.getUid();
         currenUserDb = mDatabaseReference.child("MUsersParameters").child(userid);
         mProgressDialog = new ProgressDialog(this);
-
-        CalendarManagement calendarManagement = new CalendarManagement();
+        calendarManagement = new CalendarManagement();
         dateConfirmation.setText(calendarManagement.getDate(dayInDB));
+
 
         Log.d("DAYINDB",getDayInDB().toString());
         data = new ArrayList<WelcomeData>();
@@ -181,6 +187,7 @@ public class PersonalActivity extends AppCompatActivity implements NavigationVie
 
 
 
+
     public class MyOnClickListener implements View.OnClickListener {
 
         private final Context context;
@@ -210,21 +217,59 @@ public class PersonalActivity extends AppCompatActivity implements NavigationVie
             textViewValue
                     = (TextView) viewHolder.itemView.findViewById(R.id.textViewValue);
 
+
             alertDialogBuilderUserInput
                     .setCancelable(false)
                     .setPositiveButton("Wstaw", new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialogBox, int id) {
 
-                            CalendarManagement calendarManagement = new CalendarManagement();
+
                             currentValue = String.valueOf(userInputDialogEditText.getText());
                             ////welcome DB
                             values[current_id]=currentValue;
                             userInputDialogEditText.setText(values[current_id]);
                             textViewValue.setText( values[current_id]);
-                            methodsMapper(current_id,values[current_id]);
-                            Map<String, Object> dataToSave = new HashMap<>();
-                            dataToSave.put(mapper(current_id), values[current_id]);
-                            currenUserDb.child(calendarManagement.getDateToSaveDatabase(dayInDB)).updateChildren(dataToSave);
+
+                            Log.d("wartosc z methodMapper",values[current_id]);
+
+                            currenUserDb.child(calendarManagement.getDateToSaveDatabase(dayInDB)).addValueEventListener(new ValueEventListener() {
+                                @Override
+                                public void onDataChange(DataSnapshot dataSnapshot) {
+                                        Map<String,Object> dataToSave = new HashMap<>();
+                                    try{
+
+                                        UserParameter userParameter = dataSnapshot.getValue(UserParameter.class);
+                                        methodsMapper(current_id,values[current_id],userParameter);
+                                        userParameter.setKey(dataSnapshot.getKey());
+
+                                        currenUserDb.child(calendarManagement.getDateToSaveDatabase(dayInDB)).setValue( dataToSave.put(mapper(current_id),methodsGetMapper(current_id,userParameter)));
+                                        Log.d("Klucz: ",userParameter.getKey());
+                                    }catch (Throwable e){
+                                        Log.d("NULL_update", "null przy update");
+                                        UserParameter userParameter = new UserParameter();
+                                        methodsMapper(current_id,values[current_id],userParameter);
+                                        Log.d("wartosc_mappera",mapper(current_id));
+                                       // Log.d("wartosc: ", methodsGetMapper(current_id, userParameter).toString());
+                                        //Log.d("wartosc_mapy:",(dataToSave.put("weight","1")).toString());
+                                        dataToSave.put(mapper(current_id),methodsGetMapper(current_id,userParameter));
+                                        currenUserDb.child(calendarManagement.getDateToSaveDatabase(dayInDB)).child(mapper(current_id)).setValue(dataToSave);
+                                    }
+
+
+                                }
+
+                                @Override
+                                public void onCancelled(DatabaseError databaseError) {
+                                    System.out.println("The read failed: " + databaseError.getCode());
+                                }
+                            });
+
+
+
+
+
+
+
 
                         }
                     })
@@ -276,8 +321,8 @@ public class PersonalActivity extends AppCompatActivity implements NavigationVie
         return columnName;
     }
 
-    private void methodsMapper(Integer selectedItemId, String currentValue){
-        userParameter = new UserParameter();
+    private void methodsMapper(Integer selectedItemId, String currentValue, UserParameter userParameter){
+
 
         switch(selectedItemId) {
             case 0:
@@ -307,19 +352,39 @@ public class PersonalActivity extends AppCompatActivity implements NavigationVie
         }
     }
 
+    private String methodsGetMapper(Integer selectedItemId,UserParameter userParameter){
 
-    private void updateNextDay(){
-        dayInDB = dayInDB +1;
+        String result = null;
+        if(selectedItemId==0)
+            result=userParameter.getWeight();
 
-        onStart();
+        else if(selectedItemId==1)
+            result= userParameter.getNeckCircuit();
+
+        else if(selectedItemId==2)
+            result=userParameter.getHipCircuit();
+
+        else if(selectedItemId==3)
+            result=userParameter.getWaistCircuit();
+
+        else if(selectedItemId==4)
+            result=userParameter.getChestCircuit();
+
+        else if(selectedItemId==5)
+            result=userParameter.getLeftBicepsCircuit();
+
+        else if(selectedItemId==6)
+            result=userParameter.getRightBicepsCircuit();
+
+        else if(selectedItemId==7)
+            result=userParameter.getImageOfProfile();
+
+        return result;
     }
 
-    private void updatePreviousDay(){
-        dayInDB = dayInDB-1;
 
-        onStart();
 
-    }
+
 
     @Override
     protected void onStart() {
@@ -327,55 +392,82 @@ public class PersonalActivity extends AppCompatActivity implements NavigationVie
         Log.d("DAYINDBinONstart",getDayInDB().toString());
         CalendarManagement calendarManagement = new CalendarManagement();
         dateConfirmation.setText(calendarManagement.getDate(dayInDB));
-        counter_entries=0;
+
+        userParameters = new ArrayList<>();
+
 
         Log.d("CAELNDARDAYINDB", calendarManagement.getDateToSaveDatabase(dayInDB));
-        Log.d("REFdoUSRid", mDatabaseReference.child("MUsersParameters").child(userid).getKey().toString());
-        Log.d("REFdoDaty", mDatabaseReference.child("MUsersParameters").child(userid).child(calendarManagement.getDateToSaveDatabase(dayInDB)).getDatabase().toString());
+        Log.d("REFdoDaty",  currenUserDb.child(calendarManagement.getDateToSaveDatabase(dayInDB)).toString());
 
+        Log.d("licznik_pocz ", String.valueOf(counter_entries));
         currenUserDb.child(calendarManagement.getDateToSaveDatabase(dayInDB)).addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                counter_entries=counter_entries+1;
+
+
                 Log.d("Child_ADDED","wjescie do metody childAded");
                 if(!((Activity) c).isFinishing())
                 {
                     mProgressDialog.show();
                 }
                 Map<String, String> dataToSave = new HashMap<>();
+
+
                 try{
 
-                    dataToSave.put("weight",dataSnapshot.child("weight").getValue(String.class));
+
+                    /*
                     dataToSave.put("neckCircuit",dataSnapshot.child("neckCircuit").getValue(String.class));
+
+                    dataToSave.put("weight",dataSnapshot.child("weight").getValue(String.class));
+                    Log.d("waga",dataToSave.get("weight"));
                     dataToSave.put("hipCircuit",dataSnapshot.child("hipCircuit").getValue(String.class));
                     dataToSave.put("waistCircuit",dataSnapshot.child("waistCircuit").getValue(String.class));
+                    Log.d("obwodTali",dataToSave.get("waistCircuit"));
                     dataToSave.put("chestCircuit",dataSnapshot.child("chestCircuit").getValue(String.class));
                     dataToSave.put("leftBicepsCircuit",dataSnapshot.child("leftBicepsCircuit").getValue(String.class));
                     dataToSave.put("rightBicepsCircuit",dataSnapshot.child("rightBicepsCircuit").getValue(String.class));
                     dataToSave.put("imageOfProfile",dataSnapshot.child("imageOfProfile").getValue(String.class));
-                    /*
-                    userParameter = dataSnapshot.getValue(UserParameter.class);
 
-                    values[0]=userParameter.getWeight();
+                    */
+                    //userParameter = dataSnapshot.getValue(UserParameter.class);
+                    /*
+                    Iterable<DataSnapshot> dataSnapshots = dataSnapshot.getChildren();
+                    for(DataSnapshot dataSnapshot1 : dataSnapshots){
+                        int i =0;
+                        values[i]=dataSnapshot1.getValue(String.class);
+                        Log.d("loop_snap",values[i].toString());
+                        i++;
+
+                    }
+                    */
+                    values[counter_entries]=dataSnapshot.child(mapper(counter_entries)).getValue(String.class);
+
+
+                    counter_entries=counter_entries+1;
+                    Log.d("dzieci", String.valueOf(dataSnapshot.getChildrenCount()));
+                    /*
+                    values[0]=dataSnapshot.child("weight").getValue(String.class);
                     Log.d("WAGA:",values[0]);
 
-                    values[1]=userParameter.getNeckCircuit();
-                    values[2]=userParameter.getHipCircuit();
-                    values[3]=userParameter.getWaistCircuit();
-                    values[4]=userParameter.getChestCircuit();
-                    values[5]=userParameter.getLeftBicepsCircuit();
-                    values[6]=userParameter.getRightBicepsCircuit();
-                    values[7]=userParameter.getImageOfProfile();
+                    values[1]=dataSnapshot.child("neckCircuit").getValue(String.class);
+                    Log.d("obwod_szyi:",values[1]);
+                    values[2]=dataSnapshot.child("hipCircuit").getValue(String.class);
+                    values[3]=dataSnapshot.child("waistCircuit").getValue(String.class);
+                    values[4]=dataSnapshot.child("chestCircuit").getValue(String.class);
+                    values[5]=dataSnapshot.child("leftBicepsCircuit").getValue(String.class);
+                    values[6]=dataSnapshot.child("rightBicepsCircuit").getValue(String.class);
+                    values[7]=dataSnapshot.child("imageOfProfile").getValue(String.class);
                     */
                 }catch (Throwable e){
-                    Log.d("NULL_PARA","null w para");
+                    Log.d("NULL_PARA_chang","null w para");
 
                 }
 
 
                 data = new ArrayList<WelcomeData>();
                 for (int i = 0; i < 8; i++) {
-                   values[i]=dataToSave.get(mapper(i));
+                    //values[i]=dataToSave.get(mapper(i));
                     data.add(new WelcomeData(
                             getTitles()[i],
                             getValues()[i],
@@ -393,6 +485,8 @@ public class PersonalActivity extends AppCompatActivity implements NavigationVie
                     mProgressDialog.dismiss();
                 }
 
+                Log.d("wart", String.valueOf(values[counter_entries]));
+                Log.d("licznikkkk ", String.valueOf(counter_entries));
 
             }
 
@@ -417,57 +511,6 @@ public class PersonalActivity extends AppCompatActivity implements NavigationVie
             @Override
             public void onCancelled(DatabaseError databaseError) {
                 Log.d("child","cancled");
-                counter_entries=counter_entries+1;
-                Log.d("Child_ADDED","wjescie do metody childAded");
-                if(!((Activity) c).isFinishing())
-                {
-                    mProgressDialog.show();
-                }
-
-                try{
-                    userParameter = dataSnapshot.getValue(UserParameter.class);
-
-                    values[0]=userParameter.getWeight();
-                    Log.d("WAGA:",values[0]);
-
-                    values[1]=userParameter.getNeckCircuit();
-                    values[2]=userParameter.getHipCircuit();
-                    values[3]=userParameter.getWaistCircuit();
-                    values[4]=userParameter.getChestCircuit();
-                    values[5]=userParameter.getLeftBicepsCircuit();
-                    values[6]=userParameter.getRightBicepsCircuit();
-                    values[7]=userParameter.getImageOfProfile();
-
-                }catch (Throwable e){
-                    Log.d("NULL_PARA","null w para");
-
-                }
-
-
-                Log.d("values_po_try",values[0]);
-                data = new ArrayList<WelcomeData>();
-                for (int i = 0; i < 8; i++) {
-                    if(values[i]==null){
-                        values[i]="";
-                    }
-
-                    data.add(new WelcomeData(
-                            getTitles()[i],
-                            getValues()[i],
-                            getUnits()[i]
-                    ));
-                }
-
-
-                adapter = new WelcomeAdapter(data);
-                recyclerView.setAdapter(adapter);
-
-                /*
-                if(!((Activity) c).isFinishing())
-                {
-                    mProgressDialog.dismiss();
-                }
-                */
 
             }
         });
@@ -489,6 +532,7 @@ public class PersonalActivity extends AppCompatActivity implements NavigationVie
             adapter = new WelcomeAdapter(data);
             recyclerView.setAdapter(adapter);
         }
+        Log.d("licznik na końcu ", String.valueOf(counter_entries));
 
     }
 
@@ -526,6 +570,18 @@ public class PersonalActivity extends AppCompatActivity implements NavigationVie
         return super.onOptionsItemSelected(item);
     }
 
+    private void updateNextDay(){
+        dayInDB = dayInDB +1;
+        counter_entries=0;
+        onStart();
+    }
+
+    private void updatePreviousDay(){
+        dayInDB = dayInDB-1;
+        counter_entries=0;
+        onStart();
+
+    }
     public String[] getValues() {
         return values;
     }

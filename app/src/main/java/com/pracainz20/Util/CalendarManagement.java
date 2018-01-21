@@ -25,7 +25,7 @@ public class CalendarManagement {
             formattedDate="dzisiaj";
         }else {
             formattedDate = dateFormat.format(new Date(Long.valueOf(String.valueOf(java.lang.System.currentTimeMillis()
-                    ))+((day+1)*86400000)).getTime());
+                    ))+((day)*86400000-3600000)).getTime());
         }
 
         return formattedDate;
@@ -34,7 +34,7 @@ public class CalendarManagement {
     public String getDateToSaveDatabase(Integer day){
         java.text.DateFormat dateFormat = java.text.DateFormat.getDateInstance();
 
-        String data_without_space = (dateFormat.format(new Date(Long.valueOf(String.valueOf(java.lang.System.currentTimeMillis()))+((day+1)*86400000)).getTime())).replaceAll("\\s","");
+        String data_without_space = (dateFormat.format(new Date(Long.valueOf(String.valueOf(java.lang.System.currentTimeMillis()))+(day*86400000-3600000)).getTime())).replaceAll("\\s","");
         String data_without_comma = data_without_space.replaceAll(",","");
         return data_without_comma;
     }
