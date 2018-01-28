@@ -74,8 +74,8 @@ public class PersonalActivity extends AppCompatActivity implements NavigationVie
     private Integer[] id_ = {0, 1, 2, 3,4,5,6,7};
     private Integer dayInDB=0;
     private int counter_entries=0;
-    private CalendarManagement calendarManagement;
     private Map<String,Object> dataToSave;
+
 
 
     //FIREBASE
@@ -129,8 +129,7 @@ public class PersonalActivity extends AppCompatActivity implements NavigationVie
         userid = mUser.getUid();
         currenUserDb = mDatabaseReference.child("MUsersParameters").child(userid);
         mProgressDialog = new ProgressDialog(this);
-        calendarManagement = new CalendarManagement();
-        dateConfirmation.setText(calendarManagement.getDate(dayInDB));
+        dateConfirmation.setText(CalendarManagement.getDate(dayInDB));
 
 
         Log.d("DAYINDB",getDayInDB().toString());
@@ -233,7 +232,7 @@ public class PersonalActivity extends AppCompatActivity implements NavigationVie
 
                             Log.d("wartosc z methodMapper",values[current_id]);
 
-                            currenUserDb.child(calendarManagement.getDateToSaveDatabase(dayInDB)).addValueEventListener(new ValueEventListener() {
+                            currenUserDb.child(CalendarManagement.getDateToSaveDatabase(dayInDB)).addValueEventListener(new ValueEventListener() {
                                 @Override
                                 public void onDataChange(DataSnapshot dataSnapshot) {
                                         Map<String,Object> dataToSave = new HashMap<>();
@@ -243,7 +242,7 @@ public class PersonalActivity extends AppCompatActivity implements NavigationVie
                                         methodsMapper(current_id,values[current_id],userParameter);
                                         userParameter.setKey(dataSnapshot.getKey());
 
-                                        currenUserDb.child(calendarManagement.getDateToSaveDatabase(dayInDB)).setValue( dataToSave.put(mapper(current_id),methodsGetMapper(current_id,userParameter)));
+                                        currenUserDb.child(CalendarManagement.getDateToSaveDatabase(dayInDB)).setValue( dataToSave.put(mapper(current_id),methodsGetMapper(current_id,userParameter)));
                                         Log.d("Klucz: ",userParameter.getKey());
                                     }catch (Throwable e){
                                         Log.d("NULL_update", "null przy update");
@@ -253,7 +252,7 @@ public class PersonalActivity extends AppCompatActivity implements NavigationVie
                                        // Log.d("wartosc: ", methodsGetMapper(current_id, userParameter).toString());
                                         //Log.d("wartosc_mapy:",(dataToSave.put("weight","1")).toString());
                                         dataToSave.put(mapper(current_id),methodsGetMapper(current_id,userParameter));
-                                        currenUserDb.child(calendarManagement.getDateToSaveDatabase(dayInDB)).child(mapper(current_id)).setValue(dataToSave);
+                                        currenUserDb.child(CalendarManagement.getDateToSaveDatabase(dayInDB)).child(mapper(current_id)).setValue(dataToSave);
                                     }
 
 
@@ -391,17 +390,16 @@ public class PersonalActivity extends AppCompatActivity implements NavigationVie
     protected void onStart() {
         super.onStart();
         Log.d("DAYINDBinONstart",getDayInDB().toString());
-        CalendarManagement calendarManagement = new CalendarManagement();
-        dateConfirmation.setText(calendarManagement.getDate(dayInDB));
+        dateConfirmation.setText(CalendarManagement.getDate(dayInDB));
 
-        userParameters = new ArrayList<>();
+        Log.d("CAELNDARDAYINDB", CalendarManagement.getDateToSaveDatabase(dayInDB));
 
-
-        Log.d("CAELNDARDAYINDB", calendarManagement.getDateToSaveDatabase(dayInDB));
-        Log.d("REFdoDaty",  currenUserDb.child(calendarManagement.getDateToSaveDatabase(dayInDB)).toString());
+        Log.d("PATH",currenUserDb.toString());
 
         Log.d("licznik_pocz ", String.valueOf(counter_entries));
-        currenUserDb.child(calendarManagement.getDateToSaveDatabase(dayInDB)).addChildEventListener(new ChildEventListener() {
+
+
+        currenUserDb.child(CalendarManagement.getDateToSaveDatabase(dayInDB)).addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
 
@@ -410,51 +408,48 @@ public class PersonalActivity extends AppCompatActivity implements NavigationVie
                 {
                     mProgressDialog.show();
                 }
+
+
                 Log.d("licznikkkk przed", String.valueOf(counter_entries));
                 if(dataSnapshot.getValue()!=null){
                     Map<String, Object> map = (Map<String, Object>) dataSnapshot.getValue();
 
-                    data = new ArrayList<WelcomeData>();
                     for (int i = 0; i < 8; i++) {
                         //values[i]=dataToSave.get(mapper(i));
-                        Log.d("maper",mapper(i));
                         if(map.keySet().contains(mapper(i))){
                             Log.d("Child_ADDED","wjescie do mapera kluczy");
                             values[i]= String.valueOf(map.get(mapper(i)));
 
                         }
 
-                        data.add(new WelcomeData(
-                                getTitles()[i],
-                                getValues()[i],
-                                getUnits()[i]
-                        ));
                     }
-                    //dataToSave.put(dataSnapshot.getKey(),dataSnapshot.getValue());
-                    Log.d("wart", String.valueOf(map.values())+" "+map.keySet());
-                    counter_entries=counter_entries+1;
 
-                    Log.d("dzieci", String.valueOf(dataSnapshot.getChildrenCount()));
                 }else{
                     Log.d("NULL_PARA_chang","null w para");
                 }
 
 
+                data = new ArrayList<WelcomeData>();
+                for (int i = 0; i < 8; i++) {
 
+                    data.add(new WelcomeData(
+                            getTitles()[i],
+                            getValues()[i],
+                            getUnits()[i]
+                    ));
+                }
 
 
                 adapter = new WelcomeAdapter(data);
                 recyclerView.setAdapter(adapter);
+
+                counter_entries=counter_entries+1;
 
 
                 if(!((Activity) c).isFinishing())
                 {
                     mProgressDialog.dismiss();
                 }
-
-                Log.d("wart", values[counter_entries]);
-                Log.d("licznikkkk ", String.valueOf(counter_entries));
-
             }
 
             @Override
