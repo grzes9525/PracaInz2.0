@@ -33,6 +33,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.GenericTypeIndicator;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.StorageReference;
 import com.pracainz20.Adapter.WelcomeAdapter;
@@ -72,9 +73,9 @@ public class PersonalActivity extends AppCompatActivity implements NavigationVie
     private String[] units = {"kg", "cm", "cm", "cm","cm","cm","cm",""};
     private Integer[] id_ = {0, 1, 2, 3,4,5,6,7};
     private Integer dayInDB=0;
-    private int counter_entries;
+    private int counter_entries=0;
     private CalendarManagement calendarManagement;
-    private Map<String,String> dataToSave;
+    private Map<String,Object> dataToSave;
 
 
     //FIREBASE
@@ -404,76 +405,42 @@ public class PersonalActivity extends AppCompatActivity implements NavigationVie
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
 
-
                 Log.d("Child_ADDED","wjescie do metody childAded");
                 if(!((Activity) c).isFinishing())
                 {
                     mProgressDialog.show();
                 }
-                Map<String, String> dataToSave = new HashMap<>();
+                Log.d("licznikkkk przed", String.valueOf(counter_entries));
+                if(dataSnapshot.getValue()!=null){
+                    Map<String, Object> map = (Map<String, Object>) dataSnapshot.getValue();
 
+                    data = new ArrayList<WelcomeData>();
+                    for (int i = 0; i < 8; i++) {
+                        //values[i]=dataToSave.get(mapper(i));
+                        Log.d("maper",mapper(i));
+                        if(map.keySet().contains(mapper(i))){
+                            Log.d("Child_ADDED","wjescie do mapera kluczy");
+                            values[i]= String.valueOf(map.get(mapper(i)));
 
-                try{
+                        }
 
-
-                    /*
-                    dataToSave.put("neckCircuit",dataSnapshot.child("neckCircuit").getValue(String.class));
-
-                    dataToSave.put("weight",dataSnapshot.child("weight").getValue(String.class));
-                    Log.d("waga",dataToSave.get("weight"));
-                    dataToSave.put("hipCircuit",dataSnapshot.child("hipCircuit").getValue(String.class));
-                    dataToSave.put("waistCircuit",dataSnapshot.child("waistCircuit").getValue(String.class));
-                    Log.d("obwodTali",dataToSave.get("waistCircuit"));
-                    dataToSave.put("chestCircuit",dataSnapshot.child("chestCircuit").getValue(String.class));
-                    dataToSave.put("leftBicepsCircuit",dataSnapshot.child("leftBicepsCircuit").getValue(String.class));
-                    dataToSave.put("rightBicepsCircuit",dataSnapshot.child("rightBicepsCircuit").getValue(String.class));
-                    dataToSave.put("imageOfProfile",dataSnapshot.child("imageOfProfile").getValue(String.class));
-
-                    */
-                    //userParameter = dataSnapshot.getValue(UserParameter.class);
-                    /*
-                    Iterable<DataSnapshot> dataSnapshots = dataSnapshot.getChildren();
-                    for(DataSnapshot dataSnapshot1 : dataSnapshots){
-                        int i =0;
-                        values[i]=dataSnapshot1.getValue(String.class);
-                        Log.d("loop_snap",values[i].toString());
-                        i++;
-
+                        data.add(new WelcomeData(
+                                getTitles()[i],
+                                getValues()[i],
+                                getUnits()[i]
+                        ));
                     }
-                    */
-                    values[counter_entries]=dataSnapshot.child(mapper(counter_entries)).getValue(String.class);
-
-
+                    //dataToSave.put(dataSnapshot.getKey(),dataSnapshot.getValue());
+                    Log.d("wart", String.valueOf(map.values())+" "+map.keySet());
                     counter_entries=counter_entries+1;
+
                     Log.d("dzieci", String.valueOf(dataSnapshot.getChildrenCount()));
-                    /*
-                    values[0]=dataSnapshot.child("weight").getValue(String.class);
-                    Log.d("WAGA:",values[0]);
-
-                    values[1]=dataSnapshot.child("neckCircuit").getValue(String.class);
-                    Log.d("obwod_szyi:",values[1]);
-                    values[2]=dataSnapshot.child("hipCircuit").getValue(String.class);
-                    values[3]=dataSnapshot.child("waistCircuit").getValue(String.class);
-                    values[4]=dataSnapshot.child("chestCircuit").getValue(String.class);
-                    values[5]=dataSnapshot.child("leftBicepsCircuit").getValue(String.class);
-                    values[6]=dataSnapshot.child("rightBicepsCircuit").getValue(String.class);
-                    values[7]=dataSnapshot.child("imageOfProfile").getValue(String.class);
-                    */
-                }catch (Throwable e){
+                }else{
                     Log.d("NULL_PARA_chang","null w para");
-
                 }
 
 
-                data = new ArrayList<WelcomeData>();
-                for (int i = 0; i < 8; i++) {
-                    //values[i]=dataToSave.get(mapper(i));
-                    data.add(new WelcomeData(
-                            getTitles()[i],
-                            getValues()[i],
-                            getUnits()[i]
-                    ));
-                }
+
 
 
                 adapter = new WelcomeAdapter(data);
@@ -485,7 +452,7 @@ public class PersonalActivity extends AppCompatActivity implements NavigationVie
                     mProgressDialog.dismiss();
                 }
 
-                Log.d("wart", String.valueOf(values[counter_entries]));
+                Log.d("wart", values[counter_entries]);
                 Log.d("licznikkkk ", String.valueOf(counter_entries));
 
             }
