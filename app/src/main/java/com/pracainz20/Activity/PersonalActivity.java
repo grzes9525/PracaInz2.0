@@ -21,7 +21,6 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
@@ -33,20 +32,19 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.GenericTypeIndicator;
 import com.google.firebase.database.ValueEventListener;
-import com.google.firebase.storage.StorageReference;
 import com.pracainz20.Adapter.WelcomeAdapter;
+import com.pracainz20.Model.Mapper.UserParameterMapper;
 import com.pracainz20.Model.UserParameter;
 import com.pracainz20.Model.WelcomeData;
 import com.pracainz20.R;
 import com.pracainz20.Util.CalendarManagement;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
+
+import static com.pracainz20.Model.Mapper.UserParameterMapper.mapper;
 
 public class PersonalActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
@@ -59,7 +57,6 @@ public class PersonalActivity extends AppCompatActivity implements NavigationVie
     private TextView dateConfirmation;
     private ImageButton nextDate;
     private ImageButton previousDate;
-    private Button confirmationDiaryButton;
     private EditText userInputDialogEditText;
     private TextView userInputDialogTextViewTitle;
     private TextView textViewUnit;
@@ -68,27 +65,22 @@ public class PersonalActivity extends AppCompatActivity implements NavigationVie
     private TextView textViewValue;
     RecyclerView.ViewHolder viewHolder;
     private ProgressDialog mProgressDialog;
-    private String[] values={"", "", "", "","","","",""};
-    private String[] titles = {"Waga", "Obwód szyi", "Obwód bioder", "Obwód tali" ," Obwód klatki piersiowej","Obwód lewego bicepsa","Obwód prawego bicepsa","Zdjęcie sylwetki"};
-    private String[] units = {"kg", "cm", "cm", "cm","cm","cm","cm",""};
-    private Integer[] id_ = {0, 1, 2, 3,4,5,6,7};
-    private Integer dayInDB=0;
-    private int counter_entries=0;
-    private Map<String,Object> dataToSave;
-
+    private String[] values = {"", "", "", "", "", "", "", ""};
+    private String[] titles = {"Waga", "Obwód szyi", "Obwód bioder", "Obwód tali", " Obwód klatki piersiowej", "Obwód lewego bicepsa", "Obwód prawego bicepsa", "Zdjęcie sylwetki"};
+    private String[] units = {"kg", "cm", "cm", "cm", "cm", "cm", "cm", ""};
+    private Integer[] id_ = {0, 1, 2, 3, 4, 5, 6, 7};
+    private Integer dayInDB = 0;
+    private int counter_entries = 0;
 
 
     //FIREBASE
     private DatabaseReference mDatabaseReference;
     private FirebaseDatabase mDatabase;
-    private StorageReference mFirebaseStorage;
-    private DataSnapshot dataSnapshot;
     private FirebaseUser mUser;
     private FirebaseAuth mAuth;
     private DatabaseReference currenUserDb;
     private String userid;
-    private UserParameter userParameter;
-    private List<UserParameter> userParameters;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -106,8 +98,6 @@ public class PersonalActivity extends AppCompatActivity implements NavigationVie
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
-
-        confirmationDiaryButton = (Button) findViewById(R.id.buttonConfirmationPersonal);
 
         dateConfirmation = (TextView) findViewById(R.id.date_personal_textView);
         nextDate = (ImageButton) findViewById(R.id.right_date_personal_button);
@@ -132,7 +122,7 @@ public class PersonalActivity extends AppCompatActivity implements NavigationVie
         dateConfirmation.setText(CalendarManagement.getDate(dayInDB));
 
 
-        Log.d("DAYINDB",getDayInDB().toString());
+        Log.d("DAYINDB", getDayInDB().toString());
         data = new ArrayList<WelcomeData>();
         for (int i = 0; i < 8; i++) {
             data.add(new WelcomeData(
@@ -143,12 +133,8 @@ public class PersonalActivity extends AppCompatActivity implements NavigationVie
         }
 
         adapter = new WelcomeAdapter(data);
+
         recyclerView.setAdapter(adapter);
-
-
-
-
-
 
         nextDate.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -164,8 +150,6 @@ public class PersonalActivity extends AppCompatActivity implements NavigationVie
             }
         });
     }
-
-
 
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
@@ -184,9 +168,6 @@ public class PersonalActivity extends AppCompatActivity implements NavigationVie
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
-
-
-
 
     public class MyOnClickListener implements View.OnClickListener {
 
@@ -226,35 +207,34 @@ public class PersonalActivity extends AppCompatActivity implements NavigationVie
 
                             currentValue = String.valueOf(userInputDialogEditText.getText());
                             ////welcome DB
-                            values[current_id]=currentValue;
+                            values[current_id] = currentValue;
                             userInputDialogEditText.setText(values[current_id]);
-                            textViewValue.setText( values[current_id]);
+                            textViewValue.setText(values[current_id]);
 
-                            Log.d("wartosc z methodMapper",values[current_id]);
+                            Log.d("wartosc z methodMapper", values[current_id]);
 
                             currenUserDb.child(CalendarManagement.getDateToSaveDatabase(dayInDB)).addValueEventListener(new ValueEventListener() {
                                 @Override
                                 public void onDataChange(DataSnapshot dataSnapshot) {
-                                        Map<String,Object> dataToSave = new HashMap<>();
-                                    try{
+                                    Map<String, Object> dataToSave = new HashMap<>();
+                                    try {
 
                                         UserParameter userParameter = dataSnapshot.getValue(UserParameter.class);
-                                        methodsMapper(current_id,values[current_id],userParameter);
+                                        UserParameterMapper.methodsMapper(current_id, values[current_id], userParameter);
                                         userParameter.setKey(dataSnapshot.getKey());
 
-                                        currenUserDb.child(CalendarManagement.getDateToSaveDatabase(dayInDB)).setValue( dataToSave.put(mapper(current_id),methodsGetMapper(current_id,userParameter)));
-                                        Log.d("Klucz: ",userParameter.getKey());
-                                    }catch (Throwable e){
+                                        currenUserDb.child(CalendarManagement.getDateToSaveDatabase(dayInDB)).setValue(dataToSave.put(mapper(current_id), UserParameterMapper.methodsGetMapper(current_id, userParameter)));
+                                        Log.d("Klucz: ", userParameter.getKey());
+                                    } catch (Throwable e) {
                                         Log.d("NULL_update", "null przy update");
                                         UserParameter userParameter = new UserParameter();
-                                        methodsMapper(current_id,values[current_id],userParameter);
-                                        Log.d("wartosc_mappera",mapper(current_id));
-                                       // Log.d("wartosc: ", methodsGetMapper(current_id, userParameter).toString());
+                                        UserParameterMapper.methodsMapper(current_id, values[current_id], userParameter);
+                                        Log.d("wartosc_mappera", mapper(current_id));
+                                        // Log.d("wartosc: ", methodsGetMapper(current_id, userParameter).toString());
                                         //Log.d("wartosc_mapy:",(dataToSave.put("weight","1")).toString());
-                                        dataToSave.put(mapper(current_id),methodsGetMapper(current_id,userParameter));
+                                        dataToSave.put(mapper(current_id), UserParameterMapper.methodsGetMapper(current_id, userParameter));
                                         currenUserDb.child(CalendarManagement.getDateToSaveDatabase(dayInDB)).child(mapper(current_id)).setValue(dataToSave);
                                     }
-
 
                                 }
 
@@ -263,13 +243,6 @@ public class PersonalActivity extends AppCompatActivity implements NavigationVie
                                     System.out.println("The read failed: " + databaseError.getCode());
                                 }
                             });
-
-
-
-
-
-
-
 
                         }
                     })
@@ -286,7 +259,7 @@ public class PersonalActivity extends AppCompatActivity implements NavigationVie
 
         }
 
-        private Integer getValue(View v){
+        private Integer getValue(View v) {
             int selectedItemPosition = recyclerView.getChildPosition(v);
             RecyclerView.ViewHolder viewHolder
                     = recyclerView.findViewHolderForPosition(selectedItemPosition);
@@ -299,102 +272,23 @@ public class PersonalActivity extends AppCompatActivity implements NavigationVie
                     selectedItemId = getId_()[i];
                 }
             }
-            Map<String,String> welcomeData = new HashMap<>();
-            welcomeData.put(titles[selectedItemId],values[selectedItemId]);
+            Map<String, String> welcomeData = new HashMap<>();
+            welcomeData.put(titles[selectedItemId], values[selectedItemId]);
 
             return selectedItemId;
         }
-
-
     }
-
-    private String mapper(Integer selectedItemId){
-        String columnName=null;
-        if(selectedItemId==0){columnName="weight";}
-        else if(selectedItemId==1){columnName="neckCircuit";}
-        else if(selectedItemId==2){columnName="hipCircuit";}
-        else if(selectedItemId==3){columnName="waistCircuit";}
-        else if(selectedItemId==4){columnName="chestCircuit";}
-        else if(selectedItemId==5){columnName="leftBicepsCircuit";}
-        else if(selectedItemId==6){columnName="rightBicepsCircuit";}
-        else if(selectedItemId==7){columnName="imageOfProfile";}
-        return columnName;
-    }
-
-    private void methodsMapper(Integer selectedItemId, String currentValue, UserParameter userParameter){
-
-
-        switch(selectedItemId) {
-            case 0:
-                userParameter.setWeight(currentValue);
-                break;
-            case 1:
-                userParameter.setNeckCircuit(currentValue);
-                break;
-            case 2:
-                userParameter.setHipCircuit(currentValue);
-                break;
-            case 3:
-                userParameter.setWaistCircuit(currentValue);
-                break;
-            case 4:
-                userParameter.setChestCircuit(currentValue);
-                break;
-            case 5:
-                userParameter.setLeftBicepsCircuit(currentValue);
-                break;
-            case 6:
-                userParameter.setRightBicepsCircuit(currentValue);
-                break;
-            case 7:
-                userParameter.setImageOfProfile(currentValue);
-                break;
-        }
-    }
-
-    private String methodsGetMapper(Integer selectedItemId,UserParameter userParameter){
-
-        String result = null;
-        if(selectedItemId==0)
-            result=userParameter.getWeight();
-
-        else if(selectedItemId==1)
-            result= userParameter.getNeckCircuit();
-
-        else if(selectedItemId==2)
-            result=userParameter.getHipCircuit();
-
-        else if(selectedItemId==3)
-            result=userParameter.getWaistCircuit();
-
-        else if(selectedItemId==4)
-            result=userParameter.getChestCircuit();
-
-        else if(selectedItemId==5)
-            result=userParameter.getLeftBicepsCircuit();
-
-        else if(selectedItemId==6)
-            result=userParameter.getRightBicepsCircuit();
-
-        else if(selectedItemId==7)
-            result=userParameter.getImageOfProfile();
-
-        return result;
-    }
-
-
-
 
 
     @Override
     protected void onStart() {
         super.onStart();
-        Log.d("DAYINDBinONstart",getDayInDB().toString());
+        Log.d("DAYINDBinONstart", getDayInDB().toString());
         dateConfirmation.setText(CalendarManagement.getDate(dayInDB));
 
         Log.d("CAELNDARDAYINDB", CalendarManagement.getDateToSaveDatabase(dayInDB));
 
-        Log.d("PATH",currenUserDb.toString());
+        Log.d("PATH", currenUserDb.toString());
 
         Log.d("licznik_pocz ", String.valueOf(counter_entries));
 
@@ -403,29 +297,28 @@ public class PersonalActivity extends AppCompatActivity implements NavigationVie
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
 
-                Log.d("Child_ADDED","wjescie do metody childAded");
-                if(!((Activity) c).isFinishing())
-                {
+                Log.d("Child_ADDED", "wjescie do metody childAded");
+                if (!((Activity) c).isFinishing()) {
                     mProgressDialog.show();
                 }
 
 
                 Log.d("licznikkkk przed", String.valueOf(counter_entries));
-                if(dataSnapshot.getValue()!=null){
+                if (dataSnapshot.getValue() != null) {
                     Map<String, Object> map = (Map<String, Object>) dataSnapshot.getValue();
 
                     for (int i = 0; i < 8; i++) {
                         //values[i]=dataToSave.get(mapper(i));
-                        if(map.keySet().contains(mapper(i))){
-                            Log.d("Child_ADDED","wjescie do mapera kluczy");
-                            values[i]= String.valueOf(map.get(mapper(i)));
+                        if (map.keySet().contains(mapper(i))) {
+                            Log.d("Child_ADDED", "wjescie do mapera kluczy");
+                            values[i] = String.valueOf(map.get(mapper(i)));
 
                         }
 
                     }
 
-                }else{
-                    Log.d("NULL_PARA_chang","null w para");
+                } else {
+                    Log.d("NULL_PARA_chang", "null w para");
                 }
 
 
@@ -443,44 +336,43 @@ public class PersonalActivity extends AppCompatActivity implements NavigationVie
                 adapter = new WelcomeAdapter(data);
                 recyclerView.setAdapter(adapter);
 
-                counter_entries=counter_entries+1;
+                counter_entries = counter_entries + 1;
 
 
-                if(!((Activity) c).isFinishing())
-                {
+                if (!((Activity) c).isFinishing()) {
                     mProgressDialog.dismiss();
                 }
             }
 
             @Override
             public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-                Log.d("child","chand");
+                Log.d("child", "chand");
 
             }
 
             @Override
             public void onChildRemoved(DataSnapshot dataSnapshot) {
-                Log.d("child","remove");
+                Log.d("child", "remove");
 
             }
 
             @Override
             public void onChildMoved(DataSnapshot dataSnapshot, String s) {
-                Log.d("child","moved");
+                Log.d("child", "moved");
 
             }
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
-                Log.d("child","cancled");
+                Log.d("child", "cancled");
 
             }
         });
-        if(counter_entries==0){
+        if (counter_entries == 0) {
             data = new ArrayList<WelcomeData>();
             for (int i = 0; i < 8; i++) {
 
-                    values[i]="";
+                values[i] = "";
 
 
                 data.add(new WelcomeData(
@@ -497,7 +389,6 @@ public class PersonalActivity extends AppCompatActivity implements NavigationVie
         Log.d("licznik na końcu ", String.valueOf(counter_entries));
 
     }
-
 
 
     @Override
@@ -532,55 +423,25 @@ public class PersonalActivity extends AppCompatActivity implements NavigationVie
         return super.onOptionsItemSelected(item);
     }
 
-    private void updateNextDay(){
-        dayInDB = dayInDB +1;
-        counter_entries=0;
+    private void updateNextDay() {
+        dayInDB = dayInDB + 1;
+        counter_entries = 0;
         onStart();
     }
 
-    private void updatePreviousDay(){
-        dayInDB = dayInDB-1;
-        counter_entries=0;
+    private void updatePreviousDay() {
+        dayInDB = dayInDB - 1;
+        counter_entries = 0;
         onStart();
 
     }
+
     public String[] getValues() {
         return values;
     }
 
-    public void setValues(String[] values) {
-        this.values = values;
-    }
-
     public Integer[] getId_() {
         return id_;
-    }
-
-    public void setId_(Integer[] id_) {
-        this.id_ = id_;
-    }
-    public static RecyclerView.Adapter getAdapter() {
-        return adapter;
-    }
-
-    public static void setAdapter(RecyclerView.Adapter adapter) {
-        PersonalActivity.adapter = adapter;
-    }
-
-    public RecyclerView.LayoutManager getLayoutManager() {
-        return layoutManager;
-    }
-
-    public void setLayoutManager(RecyclerView.LayoutManager layoutManager) {
-        this.layoutManager = layoutManager;
-    }
-
-    public static RecyclerView getRecyclerView() {
-        return recyclerView;
-    }
-
-    public static void setRecyclerView(RecyclerView recyclerView) {
-        PersonalActivity.recyclerView = recyclerView;
     }
 
     public static ArrayList<WelcomeData> getData() {
@@ -595,181 +456,17 @@ public class PersonalActivity extends AppCompatActivity implements NavigationVie
         return myOnClickListener;
     }
 
-    public static void setMyOnClickListener(View.OnClickListener myOnClickListener) {
-        PersonalActivity.myOnClickListener = myOnClickListener;
-    }
-
-    public Context getC() {
-        return c;
-    }
-
-    public Button getConfirmationDiaryButton() {
-        return confirmationDiaryButton;
-    }
-
-    public void setConfirmationDiaryButton(Button confirmationDiaryButton) {
-        this.confirmationDiaryButton = confirmationDiaryButton;
-    }
-
-    public EditText getUserInputDialogEditText() {
-        return userInputDialogEditText;
-    }
-
-    public void setUserInputDialogEditText(EditText userInputDialogEditText) {
-        this.userInputDialogEditText = userInputDialogEditText;
-    }
-
-    public TextView getUserInputDialogTextViewTitle() {
-        return userInputDialogTextViewTitle;
-    }
-
-    public void setUserInputDialogTextViewTitle(TextView userInputDialogTextViewTitle) {
-        this.userInputDialogTextViewTitle = userInputDialogTextViewTitle;
-    }
-
-    public TextView getTextViewUnit() {
-        return textViewUnit;
-    }
-
-    public void setTextViewUnit(TextView textViewUnit) {
-        this.textViewUnit = textViewUnit;
-    }
-
-    public String getCurrentValue() {
-        return currentValue;
-    }
-
-    public void setCurrentValue(String currentValue) {
-        this.currentValue = currentValue;
-    }
-
-    public Integer getCurrent_id() {
-        return current_id;
-    }
-
-    public void setCurrent_id(Integer current_id) {
-        this.current_id = current_id;
-    }
-
-    public TextView getTextViewValue() {
-        return textViewValue;
-    }
-
-    public void setTextViewValue(TextView textViewValue) {
-        this.textViewValue = textViewValue;
-    }
-
-    public RecyclerView.ViewHolder getViewHolder() {
-        return viewHolder;
-    }
-
-    public void setViewHolder(RecyclerView.ViewHolder viewHolder) {
-        this.viewHolder = viewHolder;
-    }
-
-    public ProgressDialog getmProgressDialog() {
-        return mProgressDialog;
-    }
-
-    public void setmProgressDialog(ProgressDialog mProgressDialog) {
-        this.mProgressDialog = mProgressDialog;
-    }
-
-    public DatabaseReference getmDatabaseReference() {
-        return mDatabaseReference;
-    }
-
-    public void setmDatabaseReference(DatabaseReference mDatabaseReference) {
-        this.mDatabaseReference = mDatabaseReference;
-    }
-
-    public FirebaseDatabase getmDatabase() {
-        return mDatabase;
-    }
-
-    public void setmDatabase(FirebaseDatabase mDatabase) {
-        this.mDatabase = mDatabase;
-    }
-
-    public StorageReference getmFirebaseStorage() {
-        return mFirebaseStorage;
-    }
-
-    public void setmFirebaseStorage(StorageReference mFirebaseStorage) {
-        this.mFirebaseStorage = mFirebaseStorage;
-    }
-
-    public DataSnapshot getDataSnapshot() {
-        return dataSnapshot;
-    }
-
-    public void setDataSnapshot(DataSnapshot dataSnapshot) {
-        this.dataSnapshot = dataSnapshot;
-    }
-
-    public FirebaseUser getmUser() {
-        return mUser;
-    }
-
-    public void setmUser(FirebaseUser mUser) {
-        this.mUser = mUser;
-    }
-
-    public FirebaseAuth getmAuth() {
-        return mAuth;
-    }
-
-    public void setmAuth(FirebaseAuth mAuth) {
-        this.mAuth = mAuth;
-    }
-
-    public DatabaseReference getCurrenUserDb() {
-        return currenUserDb;
-    }
-
-    public void setCurrenUserDb(DatabaseReference currenUserDb) {
-        this.currenUserDb = currenUserDb;
-    }
-
-    public String getUserid() {
-        return userid;
-    }
-
-    public void setUserid(String userid) {
-        this.userid = userid;
-    }
-
-
-
-    public UserParameter getUserParameter() {
-        return userParameter;
-    }
-
-    public void setUserParameter(UserParameter userParameter) {
-        this.userParameter = userParameter;
-    }
-
     public String[] getTitles() {
         return titles;
-    }
-
-    public void setTitles(String[] titles) {
-        this.titles = titles;
     }
 
     public String[] getUnits() {
         return units;
     }
 
-    public void setUnits(String[] units) {
-        this.units = units;
-    }
     public Integer getDayInDB() {
         return dayInDB;
     }
 
-    public void setDayInDB(Integer dayInDB) {
-        this.dayInDB = dayInDB;
-    }
 
 }
