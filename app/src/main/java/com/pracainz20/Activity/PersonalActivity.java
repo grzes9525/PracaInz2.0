@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -25,8 +26,11 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.GetTokenResult;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -34,6 +38,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.pracainz20.Adapter.WelcomeAdapter;
+import com.pracainz20.Model.Mapper.UserMapper;
 import com.pracainz20.Model.Mapper.UserParameterMapper;
 import com.pracainz20.Model.UserParameter;
 import com.pracainz20.Model.WelcomeData;
@@ -217,25 +222,12 @@ public class PersonalActivity extends AppCompatActivity implements NavigationVie
                                 @Override
                                 public void onDataChange(DataSnapshot dataSnapshot) {
                                     Map<String, Object> dataToSave = new HashMap<>();
-                                    try {
 
-                                        UserParameter userParameter = dataSnapshot.getValue(UserParameter.class);
-                                        UserParameterMapper.methodsMapper(current_id, values[current_id], userParameter);
-                                        userParameter.setKey(dataSnapshot.getKey());
+                                    UserParameter userParameter = new UserParameter();
+                                    UserParameterMapper.methodsMapper(current_id, values[current_id], userParameter);
 
-                                        currenUserDb.child(CalendarManagement.getDateToSaveDatabase(dayInDB)).setValue(dataToSave.put(mapper(current_id), UserParameterMapper.methodsGetMapper(current_id, userParameter)));
-                                        Log.d("Klucz: ", userParameter.getKey());
-                                    } catch (Throwable e) {
-                                        Log.d("NULL_update", "null przy update");
-                                        UserParameter userParameter = new UserParameter();
-                                        UserParameterMapper.methodsMapper(current_id, values[current_id], userParameter);
-                                        Log.d("wartosc_mappera", mapper(current_id));
-                                        // Log.d("wartosc: ", methodsGetMapper(current_id, userParameter).toString());
-                                        //Log.d("wartosc_mapy:",(dataToSave.put("weight","1")).toString());
-                                        dataToSave.put(mapper(current_id), UserParameterMapper.methodsGetMapper(current_id, userParameter));
-                                        currenUserDb.child(CalendarManagement.getDateToSaveDatabase(dayInDB)).child(mapper(current_id)).setValue(dataToSave);
-                                    }
-
+                                    dataToSave.put(UserParameterMapper.mapper(current_id), UserParameterMapper.methodsGetMapper(current_id, userParameter));
+                                    currenUserDb.child(CalendarManagement.getDateToSaveDatabase(dayInDB)).child(mapper(current_id)).setValue(dataToSave);
                                 }
 
                                 @Override
@@ -293,6 +285,7 @@ public class PersonalActivity extends AppCompatActivity implements NavigationVie
         Log.d("licznik_pocz ", String.valueOf(counter_entries));
 
 
+
         currenUserDb.child(CalendarManagement.getDateToSaveDatabase(dayInDB)).addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
@@ -301,17 +294,15 @@ public class PersonalActivity extends AppCompatActivity implements NavigationVie
                 if (!((Activity) c).isFinishing()) {
                     mProgressDialog.show();
                 }
-
-
                 Log.d("licznikkkk przed", String.valueOf(counter_entries));
                 if (dataSnapshot.getValue() != null) {
                     Map<String, Object> map = (Map<String, Object>) dataSnapshot.getValue();
 
                     for (int i = 0; i < 8; i++) {
                         //values[i]=dataToSave.get(mapper(i));
-                        if (map.keySet().contains(mapper(i))) {
+                        if (map.keySet().contains(UserParameterMapper.mapper(i))) {
                             Log.d("Child_ADDED", "wjescie do mapera kluczy");
-                            values[i] = String.valueOf(map.get(mapper(i)));
+                            values[i] = String.valueOf(map.get(UserParameterMapper.mapper(i)));
 
                         }
 

@@ -1,9 +1,13 @@
 package com.pracainz20.Activity;
 
+import android.app.Activity;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -21,6 +25,7 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -37,6 +42,16 @@ import com.pracainz20.R;
 import com.theartofdev.edmodo.cropper.CropImage;
 import com.theartofdev.edmodo.cropper.CropImageView;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import static com.pracainz20.Model.Mapper.UserParameterMapper.mapper;
+
 public class PersonalDetailActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
     private EditText firstName;
@@ -52,11 +67,14 @@ public class PersonalDetailActivity extends AppCompatActivity implements Navigat
     private ProgressDialog mProgressDialog;
     private ImageButton profilePic;
     private Uri resultUri = null;
+    private Uri mImageUri;
     private final static int GALLERY_CODE = 1;
     private DataSnapshot dataSnapshot;
     private FirebaseUser mUser;
     private FirebaseAuth mAuth;
     private String userid;
+    private int counter;
+    final Context c = this;
 
 
 
@@ -79,16 +97,17 @@ public class PersonalDetailActivity extends AppCompatActivity implements Navigat
 
         mAuth = FirebaseAuth.getInstance();
         mUser = mAuth.getCurrentUser();
+        userid = mUser.getUid();
 
         mDatabase = FirebaseDatabase.getInstance();
         mDatabaseReference = mDatabase.getReference().child("MUsers");
         mDatabaseReference.keepSynced(true);
         Log.i("INFO_MREFERENCEDB", mDatabaseReference.toString());
-        userid = mUser.getUid();
+
         currenUserDb = mDatabaseReference.child(userid);
 
         Log.d("ID clienta",FirebaseAuth.getInstance().getCurrentUser().getUid());
-        mFirebaseStorage = FirebaseStorage.getInstance().getReference().child("M_Profile_Pics");
+        mFirebaseStorage = FirebaseStorage.getInstance().getReference();
 
         mProgressDialog = new ProgressDialog(this);
 
@@ -111,6 +130,8 @@ public class PersonalDetailActivity extends AppCompatActivity implements Navigat
             }
         });
 
+        counter = 0;
+
         createAccountBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -123,50 +144,65 @@ public class PersonalDetailActivity extends AppCompatActivity implements Navigat
     }
 
     private void createNewAccount()  {
-        final User user = new User();
-        user.setUserId(userid);
-        user.setFirstName(firstName.getText().toString().trim());
-        user.setLastName(lastName.getText().toString().trim());
-        user.setPhoneNumber(phone_number.getText().toString().trim());
-        user.setHeight(height.getText().toString().trim());
-        user.setAge(age.getText().toString().trim());
-        if(resultUri == null) {
-            resultUri = Uri.parse("file:///data/user/0/com.pracainz20/cache/cropped103278948.jpg");
-        }
-        user.setProfileImage(resultUri.toString().trim());
+
+        final Map<String, Object> dataToSave = new HashMap<>();
+        dataToSave.put("firstName",firstName.getText().toString().trim());
+        dataToSave.put("lastName",lastName.getText().toString().trim());
+        dataToSave.put("age",age.getText().toString().trim());
+        dataToSave.put("height",height.getText().toString().trim());
+        dataToSave.put("phoneNumber",phone_number.getText().toString().trim());
 
         // update the user profile information in Firebase database.
-        if(resultUri==null||TextUtils.isEmpty(user.getFirstName()) || TextUtils.isEmpty(user.getLastName()) ||
-                TextUtils.isEmpty(user.getPhoneNumber())
-                || TextUtils.isEmpty(user.getHeight()) || TextUtils.isEmpty(user.getAge())){
+        if(TextUtils.isEmpty((CharSequence) dataToSave.get("firstName")) || TextUtils.isEmpty((CharSequence) dataToSave.get("lastName")) ||
+                TextUtils.isEmpty((CharSequence) dataToSave.get("age"))
+                || TextUtils.isEmpty((CharSequence) dataToSave.get("height")) || TextUtils.isEmpty((CharSequence) dataToSave.get("phoneNumber"))){
             Toast.makeText(getApplicationContext(), "Niektóre pola zostały nie wypełnione", Toast.LENGTH_LONG).show();
         }
         mProgressDialog.setMessage("Creating Account...");
         mProgressDialog.show();
 
-        StorageReference imagePath = mFirebaseStorage.child("M_Profile_Pics")
+        if(resultUri==null){
+
+            StorageReference httpsReference = FirebaseStorage.getInstance()
+                    .getReferenceFromUrl("https://firebasestorage.googleapis.com/v0/b/fir-auth-ac79b.appspot.com/o/M_Profile_Pics%2FM_Profile_Pics%2Fic_avatar.jpg?alt=media&token=Dg58NnRQUiBmd1lXsmfXzgoi5RfImfENMLN2rj9h");
+
+            httpsReference.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                @Override
+                public void onSuccess(Uri uri) {
+                    dataToSave.put("profileImage",uri);
+                    currenUserDb.setValue(dataToSave);
+                }
+            }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception exception) {
+                    // Handle any errors
+                }
+            });
+
+        }
+
+       currenUserDb.setValue(dataToSave);
+        if(resultUri!=null){
+            Log.d("creat account","wejscie de result uri");
+
+            StorageReference imagePath = mFirebaseStorage.child("M_Profile_Pics")
                     .child(resultUri.getLastPathSegment());
+            imagePath.putFile(resultUri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                @Override
+                public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                    Uri downloadurl = taskSnapshot.getDownloadUrl();
 
-        imagePath.putFile(resultUri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-            @Override
-            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                    dataToSave.put("profileImage",downloadurl.toString());
+                    currenUserDb.setValue(dataToSave);
+                    Log.d("resultUri",resultUri.toString());
+                }
+            });
+        }
+        mProgressDialog.dismiss();
+        Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        startActivity(intent);
 
-                Log.d("USER_ID: ",userid);
-                Log.d("CLIENT_NAME : ", user.getFirstName());
-
-                currenUserDb.setValue(user);
-                currenUserDb.child("profileImage").setValue(user.getProfileImage());
-
-
-                mProgressDialog.dismiss();
-
-                Intent intent = new Intent(getApplicationContext(), MainActivity.class);
-                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                startActivity(intent);
-
-
-            }
-        });
     }
 
 
@@ -175,6 +211,7 @@ public class PersonalDetailActivity extends AppCompatActivity implements Navigat
     protected void onStart() {
         super.onStart();
 
+        final List<String> values = new ArrayList<>();
 
 
         currenUserDb.addChildEventListener(new ChildEventListener() {
@@ -184,28 +221,69 @@ public class PersonalDetailActivity extends AppCompatActivity implements Navigat
 
 
 
-                mProgressDialog.show();
-//nie dziala przez curren user db w referencnii
-                User user = dataSnapshot.getValue(User.class);
-                Log.d("USER:","user z datasnapshot"+user.toString());
-                Log.d("USER:","user imie z datasnapshot"+user.getFirstName().toString());
+                if (!((Activity) c).isFinishing()) {
+                    mProgressDialog.show();
+                }
 
+                if (dataSnapshot.getValue() != null) {
+                    String value = (String) dataSnapshot.getValue();
+                    Log.d("wartosc:", value);
+                    values.add(value);
 
+                }
+                if(values.size()==5){
+                    firstName.setText(values.get(1), TextView.BufferType.EDITABLE);
+                    lastName.setText(values.get(3), TextView.BufferType.EDITABLE);
+                    phone_number.setText(values.get(4), TextView.BufferType.EDITABLE);
+                    height.setText(values.get(2), TextView.BufferType.EDITABLE);
+                    age.setText(values.get(0), TextView.BufferType.EDITABLE);
+                }
 
-                firstName.setText(user.getFirstName(), TextView.BufferType.EDITABLE);
-                lastName.setText(user.getLastName(), TextView.BufferType.EDITABLE);
-                phone_number.setText(user.getPhoneNumber(), TextView.BufferType.EDITABLE);
-                height.setText(user.getHeight(), TextView.BufferType.EDITABLE);
-                age.setText(user.getAge(), TextView.BufferType.EDITABLE);
-                if(user.getProfileImage()==null){
-                    profilePic.setImageURI(Uri.parse("file:///data/user/0/com.pracainz20/cache/cropped103278948.jpg"));
-                }else{
-                    profilePic.setImageURI(Uri.parse(user.getProfileImage()));
+                counter=counter+1;
+                Log.d("counet", String.valueOf(counter));
+                if(values.size()==6){
+                    if(counter>=6){
+                        Log.d("lista:",values.toString());
+                        firstName.setText(values.get(1), TextView.BufferType.EDITABLE);
+                        lastName.setText(values.get(3), TextView.BufferType.EDITABLE);
+                        phone_number.setText(values.get(4), TextView.BufferType.EDITABLE);
+                        height.setText(values.get(2), TextView.BufferType.EDITABLE);
+                        age.setText(values.get(0), TextView.BufferType.EDITABLE);
+                        Log.d("profileImage",values.get(5));
+                        if(values.get(5).isEmpty()){
+                            Log.d("get(5)","jest null");
+                            StorageReference httpsReference = FirebaseStorage.getInstance()
+                                    .getReferenceFromUrl("https://firebasestorage.googleapis.com/v0/b/fir-auth-ac79b.appspot.com/o/M_Profile_Pics%2FM_Profile_Pics%2Fic_avatar.jpg?alt=media&token=Dg58NnRQUiBmd1lXsmfXzgoi5RfImfENMLN2rj9h");
+
+                            httpsReference.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                                @Override
+                                public void onSuccess(Uri uri) {
+                                    profilePic.setImageURI(uri);
+                                }
+                            }).addOnFailureListener(new OnFailureListener() {
+                                @Override
+                                public void onFailure(@NonNull Exception exception) {
+                                    // Handle any errors
+                                }
+                            });
+
+                        }else{
+                            Log.d("get(5)","nie jest null");
+                            Uri uri = Uri.parse(values.get(5));
+                            StorageReference imagePath = mFirebaseStorage.child("M_Profile_Pics")
+                                    .child(uri.getLastPathSegment());
+                            imagePath.putFile(uri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                                @Override
+                                public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                                    Uri downloadurl = taskSnapshot.getDownloadUrl();
+                                    profilePic.setImageURI(Uri.parse(downloadurl.toString()));
+                                }
+                            });
+                        }
+                    }
                 }
 
                 mProgressDialog.dismiss();
-
-
             }
 
             @Override
@@ -230,12 +308,15 @@ public class PersonalDetailActivity extends AppCompatActivity implements Navigat
         });
     }
 
+
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
         if (requestCode == GALLERY_CODE && resultCode == RESULT_OK) {
-            Uri mImageUri = data.getData();
+            mImageUri = data.getData();
+            profilePic.setImageURI(mImageUri);
 
             CropImage.activity(mImageUri)
                     .setAspectRatio(1,1)

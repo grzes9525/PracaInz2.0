@@ -33,13 +33,10 @@
             android:icon="@drawable/ic_menu_reminder"
             android:title="@string/reminder_item" />
         <item
-            android:id="@+id/nav_couch"
+            android:id="@+id/nav_mates"
             android:icon="@drawable/ic_menu_avatar"
-            android:title="Trenerzy" />
-        <item
-            android:id="@+id/nav_amators"
-            android:icon="@drawable/ic_menu_avatar"
-            android:title="Podopieczni" />
+            android:title="Znajomi" />
+
     </group>
 
 
