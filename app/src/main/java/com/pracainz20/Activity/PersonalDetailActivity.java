@@ -137,6 +137,71 @@ public class PersonalDetailActivity extends AppCompatActivity implements Navigat
             }
         });
 
+        //Dałem w onCreate baza nadpisywała cropa
+        final String[] profileImage = new String[1];
+
+            mProgressDialog.show();
+
+        currenUserDbProfileImage.addChildEventListener(new ChildEventListener() {
+
+            @Override
+            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                Log.d("Child_ADDED","wjescie do metody childAded");
+
+
+
+                if (dataSnapshot.getValue() != null) {
+                    profileImage[0] = (String) dataSnapshot.getValue();
+                    Log.d("wartosc:", profileImage[0]);
+                }
+
+
+
+
+                counter=counter+1;
+
+                Log.d("counet", String.valueOf(counter));
+
+
+                Log.d("lista:", profileImage[0]);
+
+                Log.d("profileImage", profileImage[0]);
+                Log.d("get(5)","nie jest null");
+                Uri uri = Uri.parse(profileImage[0]);
+
+                StorageReference storage = FirebaseStorage.getInstance()
+                        .getReferenceFromUrl(String.valueOf(uri));
+                Glide.with(c)
+                        .using(new FirebaseImageLoader())
+                        .load(storage)
+                        .into(profilePic);
+
+            }
+
+            @Override
+            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+
+            }
+
+            @Override
+            public void onChildRemoved(DataSnapshot dataSnapshot) {
+
+            }
+
+            @Override
+            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+
+
+            mProgressDialog.dismiss();
+
 
 
     }
@@ -155,7 +220,7 @@ public class PersonalDetailActivity extends AppCompatActivity implements Navigat
         if(resultUri==null || TextUtils.isEmpty((CharSequence) dataToSave.get("firstName")) || TextUtils.isEmpty((CharSequence) dataToSave.get("lastName")) ||
                 TextUtils.isEmpty((CharSequence) dataToSave.get("age"))
                 || TextUtils.isEmpty((CharSequence) dataToSave.get("height")) || TextUtils.isEmpty((CharSequence) dataToSave.get("phoneNumber"))){
-            Toast.makeText(getApplicationContext(), "Niektóre pola zostały nie wypełnione", Toast.LENGTH_LONG).show();
+            Toast.makeText(getApplicationContext(), "Niektóre pola zostały nie zmienione", Toast.LENGTH_LONG).show();
         }
         mProgressDialog.setMessage("Creating Account...");
         mProgressDialog.show();
@@ -194,8 +259,8 @@ public class PersonalDetailActivity extends AppCompatActivity implements Navigat
         super.onStart();
 
         final List<String> values = new ArrayList<>();
-        final String[] profileImage = new String[1];
 
+            mProgressDialog.show();
 
 
         counter=0;
@@ -204,9 +269,7 @@ public class PersonalDetailActivity extends AppCompatActivity implements Navigat
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
                 Log.d("Child_ADDED","wjescie do metody childAded");
 
-                if (!((Activity) c).isFinishing()) {
-                    mProgressDialog.show();
-                }
+
 
                 if (dataSnapshot.getValue() != null) {
                     String value = (String) dataSnapshot.getValue();
@@ -228,7 +291,7 @@ public class PersonalDetailActivity extends AppCompatActivity implements Navigat
                 }
                 Log.d("counet", String.valueOf(counter));
 
-                mProgressDialog.dismiss();
+
             }
 
             @Override
@@ -251,70 +314,10 @@ public class PersonalDetailActivity extends AppCompatActivity implements Navigat
 
             }
         });
-        currenUserDbProfileImage.addChildEventListener(new ChildEventListener() {
-            @Override
-            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                Log.d("Child_ADDED","wjescie do metody childAded");
-
-                if (!((Activity) c).isFinishing()) {
-                    mProgressDialog.show();
-                }
-
-                if (dataSnapshot.getValue() != null) {
-                    profileImage[0] = (String) dataSnapshot.getValue();
-                    Log.d("wartosc:", profileImage[0]);
-                    values.add(profileImage[0]);
-
-                }
 
 
+            mProgressDialog.dismiss();
 
-
-                counter=counter+1;
-
-                Log.d("counet", String.valueOf(counter));
-
-
-                    Log.d("lista:", profileImage[0]);
-
-                    Log.d("profileImage", profileImage[0]);
-                    Log.d("get(5)","nie jest null");
-                    Uri uri = Uri.parse(profileImage[0]);
-
-                    StorageReference storage = FirebaseStorage.getInstance()
-                            .getReferenceFromUrl(String.valueOf(uri));
-                    Glide.with(c)
-                            .using(new FirebaseImageLoader())
-                            .load(storage)
-                            .into(profilePic);
-
-
-
-
-
-                mProgressDialog.dismiss();
-            }
-
-            @Override
-            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-
-            }
-
-            @Override
-            public void onChildRemoved(DataSnapshot dataSnapshot) {
-
-            }
-
-            @Override
-            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
-
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });
     }
 
     @Override
