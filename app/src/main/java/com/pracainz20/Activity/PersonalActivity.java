@@ -6,7 +6,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -26,19 +25,15 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.auth.GetTokenResult;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-import com.pracainz20.Adapter.WelcomeAdapter;
-import com.pracainz20.Model.Mapper.UserMapper;
+import com.pracainz20.Adapter.PersonalDetailAdapter;
 import com.pracainz20.Model.Mapper.UserParameterMapper;
 import com.pracainz20.Model.UserParameter;
 import com.pracainz20.Model.WelcomeData;
@@ -137,7 +132,7 @@ public class PersonalActivity extends AppCompatActivity implements NavigationVie
             ));
         }
 
-        adapter = new WelcomeAdapter(data);
+        adapter = new PersonalDetailAdapter(data);
 
         recyclerView.setAdapter(adapter);
 
@@ -167,6 +162,10 @@ public class PersonalActivity extends AppCompatActivity implements NavigationVie
         }
         if (id == R.id.nav_profile) {
             startActivity(new Intent(getApplicationContext(), PersonalActivity.class));
+            finish();
+        }
+        if (id == R.id.nav_mates) {
+            startActivity(new Intent(getApplicationContext(), MatesActivity.class));
             finish();
         }
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -324,7 +323,7 @@ public class PersonalActivity extends AppCompatActivity implements NavigationVie
                 }
 
 
-                adapter = new WelcomeAdapter(data);
+                adapter = new PersonalDetailAdapter(data);
                 recyclerView.setAdapter(adapter);
 
                 counter_entries = counter_entries + 1;
@@ -374,7 +373,7 @@ public class PersonalActivity extends AppCompatActivity implements NavigationVie
             }
 
 
-            adapter = new WelcomeAdapter(data);
+            adapter = new PersonalDetailAdapter(data);
             recyclerView.setAdapter(adapter);
         }
         Log.d("licznik na końcu ", String.valueOf(counter_entries));

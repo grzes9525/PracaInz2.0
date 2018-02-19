@@ -21,6 +21,7 @@ android {
         main {
             res.srcDirs =
                     [
+                            'src/main/res/layouts/mate_layouts',
                             'src/main/res/layouts/main_navigation',
                             'src/main/res/layouts/welcome_layouts',
                             'src/main/res/layouts/profile_layouts',

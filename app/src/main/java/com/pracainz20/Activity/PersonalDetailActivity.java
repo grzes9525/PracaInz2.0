@@ -38,6 +38,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
+import com.pracainz20.Model.User;
 import com.pracainz20.R;
 import com.theartofdev.edmodo.cropper.CropImage;
 import com.theartofdev.edmodo.cropper.CropImageView;
@@ -48,6 +49,8 @@ import java.util.List;
 import java.util.Map;
 
 public class PersonalDetailActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
+
+    private final String icAvatarUrl="https://firebasestorage.googleapis.com/v0/b/fir-auth-ac79b.appspot.com/o/M_Profile_Pics%2Fic_avatar.jpg?alt=media&token=70528e45-4d6a-47f7-8b2e-be66b3c73b04";
 
     private EditText firstName;
     private EditText lastName;
@@ -63,7 +66,6 @@ public class PersonalDetailActivity extends AppCompatActivity implements Navigat
     private ProgressDialog mProgressDialog;
     private ImageButton profilePic;
     private Uri resultUri = null;
-    private Uri mImageUri;
     private final static int GALLERY_CODE = 1;
     private DataSnapshot dataSnapshot;
     private FirebaseUser mUser;
@@ -71,8 +73,9 @@ public class PersonalDetailActivity extends AppCompatActivity implements Navigat
     private String userid;
     private int counter;
     private Context c = this ;
-
-
+    private Map<String, Object> dataToSavePublic;
+    private String publicUriImage;
+    private int switchProgres;
 
 
     @Override
@@ -101,6 +104,7 @@ public class PersonalDetailActivity extends AppCompatActivity implements Navigat
         mDatabaseReference.keepSynced(true);
         Log.i("INFO_MREFERENCEDB", mDatabaseReference.toString());
 
+        //prywatne referencje
         currenUserDb = mDatabaseReference.child(userid);
         currenUserDbProfileImage = mDatabaseReference.child("ProfileImages").child(userid);
 
@@ -207,11 +211,17 @@ public class PersonalDetailActivity extends AppCompatActivity implements Navigat
     }
 
     private void createNewAccount()  {
-
         final Map<String, Object> dataToSave = new HashMap<>();
         final Map<String, Object> dataToSaveWithImage = new HashMap<>();
+        final Map<String, Object> dataToSaveWithImagePublic = new HashMap<>();
+        dataToSavePublic = new HashMap<>();
+
+
+
         dataToSave.put("firstName",firstName.getText().toString().trim());
         dataToSave.put("lastName",lastName.getText().toString().trim());
+        dataToSavePublic.put("firstName",firstName.getText().toString().trim());
+        dataToSavePublic.put("lastName",lastName.getText().toString().trim());
         dataToSave.put("age",age.getText().toString().trim());
         dataToSave.put("height",height.getText().toString().trim());
         dataToSave.put("phoneNumber",phone_number.getText().toString().trim());
@@ -225,8 +235,8 @@ public class PersonalDetailActivity extends AppCompatActivity implements Navigat
         mProgressDialog.setMessage("Creating Account...");
         mProgressDialog.show();
 
+        if(resultUri!=null ){
 
-        if(resultUri!=null){
             Log.d("creat account","wejscie de result uri");
 
             StorageReference imagePath = mFirebaseStorage.child("M_Profile_Pics")
@@ -235,16 +245,75 @@ public class PersonalDetailActivity extends AppCompatActivity implements Navigat
                 @Override
                 public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
                     Uri downloadurl = taskSnapshot.getDownloadUrl();
-
+                    //prywatne
                     dataToSaveWithImage.put("profileImage",downloadurl.toString());
                     currenUserDbProfileImage.setValue(dataToSaveWithImage);
+
+                    ///publiczne
+                    dataToSavePublic.put("profileImage", downloadurl.toString());
+                    mDatabase.getReference().child("MUsersPublic").child(userid).setValue(dataToSavePublic);
+
+                    Log.d("resultRui_!null", String.valueOf(dataToSavePublic.values()));
+
                     Log.d("resultUri",resultUri.toString());
-                    Log.d("downloadUri",downloadurl.toString());
                 }
             });
         }
-        Log.d("maapa", String.valueOf(dataToSave.values()));
+        if(resultUri==null ){
+            Log.d("resultRui_null", String.valueOf(dataToSavePublic.values()));
+
+            mDatabase.getReference().child("MUsersPublic").addChildEventListener(new ChildEventListener() {
+                @Override
+                public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+
+
+                    Log.d("Child_ADDED","wjescie do metody childAded");
+
+                    if (dataSnapshot.getValue() != null) {
+                        User user = dataSnapshot.getValue(User.class);
+                        if(user.getProfileImage()!=null)
+                        {
+                            dataToSavePublic.put("profileImage",user.getProfileImage());
+                            Log.d("Check", "jest profile image");
+
+                        }else{
+                            Log.d("Check", "nie ma profile image");
+
+                            dataToSavePublic.put("profileImage",icAvatarUrl);
+
+                        }
+                    }
+                    mDatabase.getReference().child("MUsersPublic").child(userid).setValue(dataToSavePublic);
+
+                    mProgressDialog.dismiss();
+
+
+                }
+
+                @Override
+                public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+
+                }
+
+                @Override
+                public void onChildRemoved(DataSnapshot dataSnapshot) {
+
+                }
+
+                @Override
+                public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+
+                }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+
+                }
+            });
+
+        }
         currenUserDb.setValue(dataToSave);
+
         mProgressDialog.dismiss();
         Intent intent = new Intent(getApplicationContext(), MainActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
@@ -257,18 +326,21 @@ public class PersonalDetailActivity extends AppCompatActivity implements Navigat
     @Override
     protected void onStart() {
         super.onStart();
+        switchProgres=0;
+        mProgressDialog.show();
 
         final List<String> values = new ArrayList<>();
 
-            mProgressDialog.show();
+        mProgressDialog.show();
 
 
         counter=0;
+
         currenUserDb.addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
                 Log.d("Child_ADDED","wjescie do metody childAded");
-
+                switchProgres=switchProgres+1;
 
 
                 if (dataSnapshot.getValue() != null) {
@@ -290,6 +362,9 @@ public class PersonalDetailActivity extends AppCompatActivity implements Navigat
                     age.setText(values.get(0), TextView.BufferType.EDITABLE);
                 }
                 Log.d("counet", String.valueOf(counter));
+                Log.d("wewnatrz", "wewnatrz");
+
+                mProgressDialog.dismiss();
 
 
             }
@@ -315,8 +390,11 @@ public class PersonalDetailActivity extends AppCompatActivity implements Navigat
             }
         });
 
-
+        if(currenUserDb.getKey()==null || switchProgres==0){
+            Log.d("zewnatrz", "na zewnatrz");
             mProgressDialog.dismiss();
+
+        }
 
     }
 
@@ -361,6 +439,10 @@ public class PersonalDetailActivity extends AppCompatActivity implements Navigat
         }
         if (id == R.id.nav_profile) {
             startActivity(new Intent(getApplicationContext(), PersonalActivity.class));
+            finish();
+        }
+        if (id == R.id.nav_mates) {
+            startActivity(new Intent(getApplicationContext(), MatesActivity.class));
             finish();
         }
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -546,5 +628,13 @@ public class PersonalDetailActivity extends AppCompatActivity implements Navigat
 
     public void setUserid(String userid) {
         this.userid = userid;
+    }
+
+    public String getPublicUriImage() {
+        return publicUriImage;
+    }
+
+    public void setPublicUriImage(String publicUriImage) {
+        this.publicUriImage = publicUriImage;
     }
 }
