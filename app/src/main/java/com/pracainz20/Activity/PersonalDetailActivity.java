@@ -204,7 +204,7 @@ public class PersonalDetailActivity extends AppCompatActivity implements Navigat
         });
 
 
-            mProgressDialog.dismiss();
+        mProgressDialog.dismiss();
 
 
 

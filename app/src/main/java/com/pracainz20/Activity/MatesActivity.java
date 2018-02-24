@@ -3,18 +3,20 @@ package com.pracainz20.Activity;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
+import android.widget.ListView;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -23,30 +25,29 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.pracainz20.Adapter.MatesAdapter;
 import com.pracainz20.Model.User;
 import com.pracainz20.R;
 
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by Grzechu on 09.02.2018.
  */
 
-public class MatesActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener  {
+public class MatesActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener{
 
     private DatabaseReference mDatabaseReference;
-    private RecyclerView recyclerView;
-    private MatesAdapter  matesAdapter;
-    private List<User> userList;
     private FirebaseDatabase mDatabase;
     private FirebaseUser mUser;
     private FirebaseAuth mAuth;
     private ProgressDialog mProgressDialog;
-    private int switchProgres;
-
+    private AutoCompleteTextView acTextView;
+    private ListView mateListView;
+    private ArrayAdapter<String> adapter;
+    private int i;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,6 +66,8 @@ public class MatesActivity extends AppCompatActivity implements NavigationView.O
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
+        mProgressDialog = new ProgressDialog(this);
+
         mAuth = FirebaseAuth.getInstance();
         mUser = mAuth.getCurrentUser();
 
@@ -72,13 +75,21 @@ public class MatesActivity extends AppCompatActivity implements NavigationView.O
         mDatabaseReference = mDatabase.getReference().child("MUsersPublic");
         mDatabaseReference.keepSynced(true);
 
-        userList = new ArrayList<>();
+        acTextView = (AutoCompleteTextView) findViewById(R.id.editText_search_button);
+        mateListView = (ListView) findViewById(R.id.mateList);
 
-        recyclerView = (RecyclerView) findViewById(R.id.my_recycler_view_mate);
-        recyclerView.setHasFixedSize(true);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-        mProgressDialog = new ProgressDialog(this);
+        mateListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+
+            @Override
+            public void onItemClick(AdapterView<?> arg0, View arg1, int arg2,
+                                    long arg3) {
+                // TODO Auto-generated method stub
+                Log.d("############","Items " );
+            }
+
+        });
+
     }
 
     @Override
@@ -119,34 +130,60 @@ public class MatesActivity extends AppCompatActivity implements NavigationView.O
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_signout) {
-            return true;
+            if (mUser != null && mAuth != null) {
+                mAuth.signOut();
+
+                startActivity(new Intent(getApplicationContext(), LoginActivity.class));
+                finish();
+
+            }
         }
 
         return super.onOptionsItemSelected(item);
     }
 
+
     @Override
     protected void onStart() {
         super.onStart();
-        switchProgres=0;
         mProgressDialog.show();
+        final List<String> matesList = new ArrayList();
+        final Map<Integer, String> matesMap = new HashMap<>();
 
+
+        i=0;
+        Log.d("onStart","wywołanie onStart");
         mDatabaseReference.addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                switchProgres=switchProgres+1;
+                Log.d("poAddChild","po wywolaniu metody addChild "+i);
                 User user = dataSnapshot.getValue(User.class);
-                Log.d("user_wart",user.getFirstName()+" "+user.getProfileImage());
+                Log.d("user_wart",user.getFirstName()+" "+user.getLastName());
+                matesMap.put(i,dataSnapshot.getKey());
+                Log.d("key",dataSnapshot.getKey());
+                matesList.add( user.getFirstName()+" "+user.getLastName());
+                i++;
+                Log.d("matesMap", String.valueOf(matesMap.size()));
+                adapter = new ArrayAdapter<String>(getApplicationContext(),android.R.layout.select_dialog_singlechoice,matesList );
+                //mateListView.setAdapter(adapter);
+                //Set the number of characters the user must type before the drop down list is shown
+                acTextView.setThreshold(1);
+                //Set the adapter
+                acTextView.setAdapter( adapter);
+                acTextView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                        String selected = (String) parent.getItemAtPosition(position);
+                        int pos = matesList.indexOf(selected);
+                        Log.d("pos", String.valueOf(pos));
+                        Log.d("userIDMAte",matesMap.get(pos));
+                        mDatabase.getReference().child("MAccesToMate").child(mUser.getUid()).setValue(matesMap.get(pos));
+                        Intent intent = new Intent(getApplicationContext(), MateProfileActivity.class);
+                        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                        startActivity(intent);
 
-                userList.add(user);
-
-                matesAdapter = new MatesAdapter(MatesActivity.this,userList);
-                recyclerView.setAdapter(matesAdapter);
-                matesAdapter.notifyDataSetChanged();
-
-                mProgressDialog.dismiss();
-
-
+                    }
+                });
             }
 
             @Override
@@ -171,11 +208,8 @@ public class MatesActivity extends AppCompatActivity implements NavigationView.O
 
         });
 
-        if(switchProgres==0){
-            Log.d("zewnatrz", "na zewnatrz");
-            mProgressDialog.dismiss();
+        mProgressDialog.dismiss();
 
-        }
 
     }
 }

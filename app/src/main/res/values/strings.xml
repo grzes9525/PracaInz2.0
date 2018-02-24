@@ -35,7 +35,8 @@
     <string name="create_account">Create Account</string>
     <string name="sign_out">Sign Out</string>
     <string name="verify_email">Verify Email</string>
-    <string name="title_activity_main">MainActivity</string>
+    <string name="title_activity_main">Tablica</string>
+    <string name="title_activity_mate_profile">Profil</string>
 
     <!-- item navigation -->
     <string name="home_item">Strona główna</string>

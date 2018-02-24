@@ -5,6 +5,8 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Filter;
+import android.widget.Filterable;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -18,14 +20,17 @@ import java.util.List;
  * Created by Grzechu on 12.02.2018.
  */
 
-public class MatesAdapter extends RecyclerView.Adapter<MatesAdapter.ViewHolder> {
+public class MatesAdapter extends RecyclerView.Adapter<MatesAdapter.ViewHolder> implements Filterable {
 
     private Context context;
     private List<User> userList;
+    private List<String> listMate;
 
-    public MatesAdapter(Context context, List<User> userList) {
+
+    public MatesAdapter(Context context, List<String> listMate) {
         this.context = context;
-        this.userList = userList;
+        this.listMate = listMate;
+
     }
 
     @Override
@@ -59,6 +64,11 @@ public class MatesAdapter extends RecyclerView.Adapter<MatesAdapter.ViewHolder> 
     @Override
     public int getItemCount() {
         return userList.size();
+    }
+
+    @Override
+    public Filter getFilter() {
+        return null;
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
