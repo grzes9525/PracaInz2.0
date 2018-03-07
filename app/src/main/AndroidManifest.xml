@@ -24,17 +24,6 @@
             android:name=".Activity.MainActivity"
             android:label="@string/title_activity_main"
             android:theme="@style/AppTheme.NoActionBar">
-
-        </activity>
-
-        <activity
-            android:name=".Activity.PersonalDetailActivity"
-            android:label="@string/title_activity_personal_detail"
-            android:theme="@style/AppTheme.NoActionBar" />
-        <activity
-            android:name=".Activity.MateProfileActivity"
-            android:label=""
-            android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -42,16 +31,40 @@
             </intent-filter>
         </activity>
 
+        <activity
+            android:name=".Activity.PersonalDetailActivity"
+            android:label="@string/title_activity_personal_detail"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".Activity.PersonalActivity"
+            android:label="@string/title_activity_personal"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".Activity.MateProfileActivity"
+            android:label=""
+            android:theme="@style/AppTheme.NoActionBar">
+
+        </activity>
+        <activity
+            android:name=".Activity.OwnProfileActivity"
+            android:label=""
+            android:theme="@style/AppTheme.NoActionBar">
+
+        </activity>
+
+        <activity
+            android:name=".Activity.UserProfileActivity"
+            android:label=""
+            android:theme="@style/AppTheme.NoActionBar">
+
+        </activity>
+
 
         <activity
             android:name=".Activity.MatesActivity"
             android:label="@string/title_activity_personal_detail"
             android:theme="@style/AppTheme.NoActionBar" />
-        <activity
-            android:name=".Activity.PersonalActivity"
-            android:label="@string/title_activity_mate"
-            android:theme="@style/AppTheme.NoActionBar"></activity>
-        <activity android:name="com.theartofdev.edmodo.cropper.CropImageActivity"/>
+
     </application>
 
 </manifest>

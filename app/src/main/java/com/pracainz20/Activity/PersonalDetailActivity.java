@@ -444,6 +444,9 @@ public class PersonalDetailActivity extends AppCompatActivity implements Navigat
         if (id == R.id.nav_mates) {
             startActivity(new Intent(getApplicationContext(), MatesActivity.class));
             finish();
+        }if (id == R.id.nav_home) {
+            startActivity(new Intent(getApplicationContext(), MainActivity.class));
+            finish();
         }
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);

@@ -19,6 +19,7 @@ import android.widget.ListView;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.pracainz20.R;
 
@@ -31,10 +32,19 @@ public class MateProfileActivity  extends AppCompatActivity
 
     private FirebaseUser mUser;
     private FirebaseAuth mAuth;
+    private DatabaseReference mDatabaseReference;
+    private FirebaseDatabase mDatabase;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+
+        mDatabase = FirebaseDatabase.getInstance();
+        mDatabaseReference = mDatabase.getReference().child("MUsers");
+        mDatabaseReference.keepSynced(true);
+
         setContentView(R.layout.activity_profile_mate);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -74,6 +84,9 @@ public class MateProfileActivity  extends AppCompatActivity
         }
         if (id == R.id.nav_mates) {
             startActivity(new Intent(getApplicationContext(), MatesActivity.class));
+            finish();
+        }if (id == R.id.nav_home) {
+            startActivity(new Intent(getApplicationContext(), MainActivity.class));
             finish();
         }
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
