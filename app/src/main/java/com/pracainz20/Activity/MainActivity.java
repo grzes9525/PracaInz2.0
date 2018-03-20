@@ -25,6 +25,8 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
+import com.google.firebase.database.ValueEventListener;
 import com.pracainz20.Model.User;
 import com.pracainz20.R;
 
@@ -40,7 +42,6 @@ public class MainActivity extends AppCompatActivity
     private FirebaseDatabase mDatabase;
     private FirebaseUser mUser;
     private FirebaseAuth mAuth;
-    private ProgressDialog mProgressDialog;
     private AutoCompleteTextView acTextView;
     private ListView mateListView;
     private ArrayAdapter<String> adapter;
@@ -116,13 +117,51 @@ public class MainActivity extends AppCompatActivity
                     @Override
                     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                         String selected = (String) parent.getItemAtPosition(position);
-                        int pos = matesList.indexOf(selected);
+                        final int pos = matesList.indexOf(selected);
                         Log.d("pos", String.valueOf(pos));
-                        Log.d("userIDMAte",matesMap.get(pos));
-                        mDatabase.getReference().child("MAccesToMate").child(mUser.getUid()).setValue(matesMap.get(pos));
-                        Intent intent = new Intent(getApplicationContext(), MateProfileActivity.class);
-                        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                        startActivity(intent);
+
+
+
+                        DatabaseReference reference = FirebaseDatabase.getInstance().getReference();
+                        Query query = reference.child("Permissions")
+                                        .child(mUser.getUid())
+                                        .child("accessToUser")
+                                        .orderByValue()
+                                        .equalTo(matesMap.get(pos));
+                        query.addListenerForSingleValueEvent(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(DataSnapshot dataSnapshot) {
+                                //Log.d("DataSnapShot",dataSnapshot.getValue(String.class));
+                                //Log.d("mateId ",dataSnapshot.getValue(String.class));
+                                if (dataSnapshot.exists()) {
+                                    Log.d("warunek ","if");
+                                    Intent intent = new Intent(getApplicationContext(), MateProfileActivity.class);
+                                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                                    intent.putExtra("MATE_ID", matesMap.get(pos));
+                                    startActivity(intent);
+
+                                }else if(matesMap.get(pos).equals(mUser.getUid())){
+                                    Log.d("warunek ","elseif");
+                                    Intent intent = new Intent(getApplicationContext(), OwnProfileActivity.class);
+                                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                                    intent.putExtra("OWN_ID", matesMap.get(pos));
+                                    startActivity(intent);
+                                }else {
+                                    Log.d("warunek ","else");
+                                    Intent intent = new Intent(getApplicationContext(), UserProfileActivity.class);
+                                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                                    intent.putExtra("USER_ID", matesMap.get(pos));
+                                    startActivity(intent);
+                                }
+                            }
+
+                            @Override
+                            public void onCancelled(DatabaseError databaseError) {
+
+                            }
+                        });
+
+
 
                     }
                 });
@@ -211,6 +250,9 @@ public class MainActivity extends AppCompatActivity
             finish();
         }if (id == R.id.nav_home) {
             startActivity(new Intent(getApplicationContext(), MainActivity.class));
+            finish();
+        }if (id == R.id.nav_reminder) {
+            startActivity(new Intent(getApplicationContext(), ReminderActivity.class));
             finish();
         }
 

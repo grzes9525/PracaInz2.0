@@ -35,6 +35,8 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
+import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
@@ -71,11 +73,9 @@ public class PersonalDetailActivity extends AppCompatActivity implements Navigat
     private FirebaseUser mUser;
     private FirebaseAuth mAuth;
     private String userid;
-    private int counter;
     private Context c = this ;
     private Map<String, Object> dataToSavePublic;
     private String publicUriImage;
-    private int switchProgres;
 
 
     @Override
@@ -132,7 +132,6 @@ public class PersonalDetailActivity extends AppCompatActivity implements Navigat
             }
         });
 
-        counter = 0;
 
         createAccountBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -144,57 +143,24 @@ public class PersonalDetailActivity extends AppCompatActivity implements Navigat
         //Dałem w onCreate baza nadpisywała cropa
         final String[] profileImage = new String[1];
 
-            mProgressDialog.show();
+        DatabaseReference reference = FirebaseDatabase.getInstance().getReference();
 
-        currenUserDbProfileImage.addChildEventListener(new ChildEventListener() {
-
+        Query query = reference.child("MUsers").child("ProfileImages").child(userid).child("profileImage");
+        query.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
-            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                Log.d("Child_ADDED","wjescie do metody childAded");
-
-
-
-                if (dataSnapshot.getValue() != null) {
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if (dataSnapshot.exists()) {
+                    // dataSnapshot is the "issue" node with all children with id 0
                     profileImage[0] = (String) dataSnapshot.getValue();
-                    Log.d("wartosc:", profileImage[0]);
+                    Uri uri = Uri.parse(profileImage[0]);
+
+                    StorageReference storage = FirebaseStorage.getInstance()
+                            .getReferenceFromUrl(String.valueOf(uri));
+                    Glide.with(c)
+                            .using(new FirebaseImageLoader())
+                            .load(storage)
+                            .into(profilePic);
                 }
-
-
-
-
-                counter=counter+1;
-
-                Log.d("counet", String.valueOf(counter));
-
-
-                Log.d("lista:", profileImage[0]);
-
-                Log.d("profileImage", profileImage[0]);
-                Log.d("get(5)","nie jest null");
-                Uri uri = Uri.parse(profileImage[0]);
-
-                StorageReference storage = FirebaseStorage.getInstance()
-                        .getReferenceFromUrl(String.valueOf(uri));
-                Glide.with(c)
-                        .using(new FirebaseImageLoader())
-                        .load(storage)
-                        .into(profilePic);
-
-            }
-
-            @Override
-            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-
-            }
-
-            @Override
-            public void onChildRemoved(DataSnapshot dataSnapshot) {
-
-            }
-
-            @Override
-            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
-
             }
 
             @Override
@@ -203,8 +169,6 @@ public class PersonalDetailActivity extends AppCompatActivity implements Navigat
             }
         });
 
-
-        mProgressDialog.dismiss();
 
 
 
@@ -326,62 +290,22 @@ public class PersonalDetailActivity extends AppCompatActivity implements Navigat
     @Override
     protected void onStart() {
         super.onStart();
-        switchProgres=0;
-        mProgressDialog.show();
-
-        final List<String> values = new ArrayList<>();
-
-        mProgressDialog.show();
-
-
-        counter=0;
-
-        currenUserDb.addChildEventListener(new ChildEventListener() {
+        final User[] user = new User[1];
+        DatabaseReference reference = FirebaseDatabase.getInstance().getReference();
+        Query query = reference.child("MUsers").child(userid);
+        query.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
-            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                Log.d("Child_ADDED","wjescie do metody childAded");
-                switchProgres=switchProgres+1;
-
-
-                if (dataSnapshot.getValue() != null) {
-                    String value = (String) dataSnapshot.getValue();
-                    Log.d("wartosc:", value);
-                    values.add(value);
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if (dataSnapshot.exists()) {
+                    // dataSnapshot is the "issue" node with all children with id 0
+                    user[0] = dataSnapshot.getValue(User.class);
+                    firstName.setText(user[0].getFirstName(), TextView.BufferType.EDITABLE);
+                    lastName.setText(user[0].getLastName(), TextView.BufferType.EDITABLE);
+                    phone_number.setText(user[0].getPhoneNumber(), TextView.BufferType.EDITABLE);
+                    height.setText(user[0].getHeight(), TextView.BufferType.EDITABLE);
+                    age.setText(user[0].getAge(), TextView.BufferType.EDITABLE);
 
                 }
-
-
-
-
-                counter=counter+1;
-                if(values.size()==5){
-                    firstName.setText(values.get(1), TextView.BufferType.EDITABLE);
-                    lastName.setText(values.get(3), TextView.BufferType.EDITABLE);
-                    phone_number.setText(values.get(4), TextView.BufferType.EDITABLE);
-                    height.setText(values.get(2), TextView.BufferType.EDITABLE);
-                    age.setText(values.get(0), TextView.BufferType.EDITABLE);
-                }
-                Log.d("counet", String.valueOf(counter));
-                Log.d("wewnatrz", "wewnatrz");
-
-                mProgressDialog.dismiss();
-
-
-            }
-
-            @Override
-            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-
-            }
-
-            @Override
-            public void onChildRemoved(DataSnapshot dataSnapshot) {
-
-            }
-
-            @Override
-            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
-
             }
 
             @Override
@@ -390,11 +314,6 @@ public class PersonalDetailActivity extends AppCompatActivity implements Navigat
             }
         });
 
-        if(currenUserDb.getKey()==null || switchProgres==0){
-            Log.d("zewnatrz", "na zewnatrz");
-            mProgressDialog.dismiss();
-
-        }
 
     }
 

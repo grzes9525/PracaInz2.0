@@ -12,6 +12,9 @@ public class User {
     private String age;
     private String profileImage;
     private String email;
+    private String trainee_name;
+    private String student_name;
+    private Integer number_mate;
     private String userId;
 
     public User() {
@@ -65,6 +68,29 @@ public class User {
         this.userId = userId;
     }
 
+    public String getTrainee_name() {
+        return trainee_name;
+    }
+
+    public void setTrainee_name(String trainee_name) {
+        this.trainee_name = trainee_name;
+    }
+
+    public String getStudent_name() {
+        return student_name;
+    }
+
+    public void setStudent_name(String student_name) {
+        this.student_name = student_name;
+    }
+
+    public Integer getNumber_mate() {
+        return number_mate;
+    }
+
+    public void setNumber_mate(Integer number_mate) {
+        this.number_mate = number_mate;
+    }
 
     public String getProfileImage() {
         return profileImage;
@@ -81,4 +107,5 @@ public class User {
     public void setEmail(String email) {
         this.email = email;
     }
+
 }

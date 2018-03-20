@@ -36,6 +36,8 @@
     <string name="sign_out">Sign Out</string>
     <string name="verify_email">Verify Email</string>
     <string name="title_activity_main">Tablica</string>
+    <string name="title_activity_remiander">Przypomnienia</string>
+
     <string name="title_activity_mate_profile">Profil</string>
 
     <!-- item navigation -->
