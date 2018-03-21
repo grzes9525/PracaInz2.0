@@ -51,7 +51,6 @@ public class ReminderActivity extends AppCompatActivity implements NavigationVie
 
     private RecyclerView recyclerView;
     private ReminderAdapter reminderAdapter;
-    private List<Reminder> reminderList;
     private Reminder reminder;
     private int i;
 
@@ -80,7 +79,6 @@ public class ReminderActivity extends AppCompatActivity implements NavigationVie
         recyclerView = (RecyclerView) findViewById(R.id.my_recycler_view_reminder);
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        reminderList = new ArrayList<>();
         final List<Reminder> reminders = new ArrayList<>();
         i=0;
         Log.d("reminder","2");

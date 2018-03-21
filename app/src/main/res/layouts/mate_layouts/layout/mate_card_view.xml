@@ -18,72 +18,100 @@
         android:layout_height="match_parent">
 
 
-        <LinearLayout
-            android:layout_width="271dp"
-            android:layout_height="42dp"
-            android:layout_marginBottom="8dp"
-            android:layout_marginEnd="8dp"
-            android:layout_marginStart="8dp"
-            android:layout_marginTop="8dp"
-            android:orientation="horizontal"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.89"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.428">
-
-            <TextView
-                android:id="@+id/textViewFirstName"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-
-                android:layout_marginBottom="8dp"
-                android:layout_marginEnd="8dp"
-                android:layout_marginStart="8dp"
-                android:layout_marginTop="8dp"
-                android:text="as"
-                android:textAppearance="?android:attr/textAppearanceLarge"
-                app:layout_constraintEnd_toStartOf="@+id/textViewLastName"
-                app:layout_constraintHorizontal_bias="0.737"
-                app:layout_constraintStart_toStartOf="parent"
-                card_view:layout_constraintBottom_toBottomOf="parent"
-                card_view:layout_constraintTop_toTopOf="parent" />
-
-            <TextView
-                android:id="@+id/textViewLastName"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp"
-                android:layout_marginEnd="64dp"
-                android:layout_marginLeft="8dp"
-                android:layout_marginRight="64dp"
-                android:layout_marginStart="8dp"
-                android:layout_marginTop="8dp"
-                android:gravity="left"
-                android:text="asdsa"
-                android:textAppearance="?android:attr/textAppearanceLarge"
-                app:layout_constraintHorizontal_bias="0.8"
-                app:layout_constraintStart_toStartOf="parent"
-                card_view:layout_constraintBottom_toBottomOf="parent"
-                card_view:layout_constraintEnd_toEndOf="parent"
-                card_view:layout_constraintTop_toTopOf="parent" />
-        </LinearLayout>
-
-
-
         <ImageView
             android:id="@+id/imageProfile"
             android:layout_width="61dp"
-            android:layout_height="43dp"
+            android:layout_height="59dp"
             android:layout_marginBottom="8dp"
-            android:layout_marginEnd="8dp"
             android:layout_marginStart="8dp"
             android:layout_marginTop="8dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            card_view:srcCompat="@mipmap/ic_avatar" />
+            card_view:srcCompat="@mipmap/ic_avatar"
+            android:layout_marginLeft="8dp" />
+
+        <TextView
+            android:id="@+id/inivitation_user_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:text="asdasdasddasas"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toEndOf="@+id/imageProfile"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.100000024" />
+
+        <TextView
+            android:id="@+id/invitation_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginStart="3dp"
+            android:layout_marginTop="8dp"
+            android:text="przysyła zaproszenie."
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toEndOf="@+id/inivitation_user_name"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.100000024"
+            android:layout_marginRight="8dp"
+            android:layout_marginLeft="3dp" />
+
+        <Button
+            android:id="@+id/accept_invitation"
+            android:layout_width="64dp"
+            android:layout_height="22dp"
+            android:layout_marginBottom="8dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:text="Akceptuj"
+            android:background="@android:color/transparent"
+            android:minHeight="1dp"
+            android:minWidth="1dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/imageProfile"
+            app:layout_constraintTop_toBottomOf="@+id/inivitation_user_name"
+            android:layout_marginLeft="8dp" />
+
+        <Button
+            android:id="@+id/reject_invitation"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:text="Odrzuć"
+            android:background="@android:color/transparent"
+            android:minHeight="1dp"
+            android:minWidth="1dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/accept_invitation"
+            app:layout_constraintTop_toBottomOf="@+id/inivitation_user_name"
+            android:layout_marginLeft="8dp" />
+
+        <Button
+            android:id="@+id/show_profile"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:text="Zobacz profil"
+            android:background="@android:color/transparent"
+            android:minHeight="1dp"
+            android:minWidth="1dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/reject_invitation"
+            app:layout_constraintTop_toBottomOf="@+id/inivitation_user_name"
+            android:layout_marginLeft="8dp" />
     </android.support.constraint.ConstraintLayout>
 
 </android.support.v7.widget.CardView>

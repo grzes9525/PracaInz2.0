@@ -11,6 +11,8 @@ public class Reminder {
     private String author_id;
     private String type_reminder;
     private String author_name;
+    private String firstAuthorName;
+    private String lastAuthorName;
     private Date create_dt;
     private String profileImage;
 
@@ -20,6 +22,22 @@ public class Reminder {
 
     public String getProfileImage() {
         return profileImage;
+    }
+
+    public String getFirstAuthorName() {
+        return firstAuthorName;
+    }
+
+    public void setFirstAuthorName(String firstAuthorName) {
+        this.firstAuthorName = firstAuthorName;
+    }
+
+    public String getLastAuthorName() {
+        return lastAuthorName;
+    }
+
+    public void setLastAuthorName(String lastAuthorName) {
+        this.lastAuthorName = lastAuthorName;
     }
 
     public void setProfileImage(String profileImage) {

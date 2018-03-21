@@ -64,10 +64,19 @@
         android:orientation="horizontal">
 
 
-        <ListView
+        <RelativeLayout
+            android:id="@+id/fragment_recyclerview_mate_invitation"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:id="@+id/mateList"/>
+            android:layout_height="match_parent">
+
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/my_recycler_view_mate_invitation"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scrollbars="vertical">
+
+            </android.support.v7.widget.RecyclerView>
+        </RelativeLayout>
 
     </LinearLayout>
 

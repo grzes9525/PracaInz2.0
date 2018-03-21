@@ -8,6 +8,8 @@ import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
@@ -27,6 +29,10 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
+import com.pracainz20.Adapter.MatesAdapter;
+import com.pracainz20.Adapter.ReminderAdapter;
+import com.pracainz20.Model.Invitation;
+import com.pracainz20.Model.Reminder;
 import com.pracainz20.Model.User;
 import com.pracainz20.R;
 
@@ -45,11 +51,13 @@ public class MatesActivity extends AppCompatActivity implements NavigationView.O
     private FirebaseDatabase mDatabase;
     private FirebaseUser mUser;
     private FirebaseAuth mAuth;
-    private ProgressDialog mProgressDialog;
     private AutoCompleteTextView acTextView;
-    private ListView mateListView;
     private ArrayAdapter<String> adapter;
+    private Invitation invitation;
+    private RecyclerView recyclerView;
+    private MatesAdapter matesAdapter;
     private int i;
+    private int k;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,29 +76,86 @@ public class MatesActivity extends AppCompatActivity implements NavigationView.O
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-        mProgressDialog = new ProgressDialog(this);
-
         mAuth = FirebaseAuth.getInstance();
         mUser = mAuth.getCurrentUser();
+
+        recyclerView = (RecyclerView) findViewById(R.id.my_recycler_view_mate_invitation);
+        recyclerView.setHasFixedSize(true);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+
+
 
         mDatabase = FirebaseDatabase.getInstance();
         mDatabaseReference = mDatabase.getReference().child("MUsersPublic");
         mDatabaseReference.keepSynced(true);
 
         acTextView = (AutoCompleteTextView) findViewById(R.id.editText_search_button);
-        mateListView = (ListView) findViewById(R.id.mateList);
 
-
-        mateListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-
+        k=0;
+        final List<Invitation> invitations = new ArrayList<>();
+        DatabaseReference reference = FirebaseDatabase.getInstance().getReference();
+        final DatabaseReference reference1=reference.child("Mates").child("invitations").child(mUser.getUid());
+        reference.child("Mates").child("invitations").child(mUser.getUid()).addChildEventListener(new ChildEventListener() {
             @Override
-            public void onItemClick(AdapterView<?> arg0, View arg1, int arg2,
-                                    long arg3) {
-                // TODO Auto-generated method stub
-                Log.d("############","Items " );
+            public void onChildAdded(final DataSnapshot dataSnapshot, String s) {
+                Log.d("invitation", "execute");
+                invitation = new Invitation();
+                invitation = dataSnapshot.getValue(Invitation.class);
+                invitation.setKeyId(dataSnapshot.getKey());
+                invitations.add(invitation);
+                DatabaseReference reference = FirebaseDatabase.getInstance().getReference();
+
+                Query query = reference.child("MUsersPublic")
+                        .child(dataSnapshot.getValue(Invitation.class).getUserId());
+                query.addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot1) {
+                        Log.d("datasnapshot1",dataSnapshot1.getValue(User.class).getFirstName()+" "+dataSnapshot1.getValue(User.class).getLastName()+""+k);
+                        invitations.get(k).setUserName(dataSnapshot1.getValue(User.class).getFirstName()+" "+dataSnapshot1.getValue(User.class).getLastName());
+
+                        invitations.get(k).setProfileImage(dataSnapshot1.getValue(User.class).getProfileImage());
+                        k++;
+                        matesAdapter = new MatesAdapter(getApplicationContext(),invitations, MatesActivity.this, reference1);
+                        recyclerView.setAdapter(matesAdapter);
+                        matesAdapter.notifyDataSetChanged();
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                });
+
+
             }
 
+            @Override
+            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+                Log.d("child", "chand");
+
+            }
+
+            @Override
+            public void onChildRemoved(DataSnapshot dataSnapshot) {
+                Log.d("child", "remove");
+
+            }
+
+            @Override
+            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+                Log.d("child", "moved");
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                Log.d("child", "cancled");
+
+            }
         });
+
+
+
 
     }
 
@@ -151,7 +216,6 @@ public class MatesActivity extends AppCompatActivity implements NavigationView.O
     @Override
     protected void onStart() {
         super.onStart();
-        mProgressDialog.show();
         final List<String> matesList = new ArrayList();
         final Map<Integer, String> matesMap = new HashMap<>();
 
@@ -170,10 +234,7 @@ public class MatesActivity extends AppCompatActivity implements NavigationView.O
                 i++;
                 Log.d("matesMap", String.valueOf(matesMap.size()));
                 adapter = new ArrayAdapter<String>(getApplicationContext(),android.R.layout.select_dialog_singlechoice,matesList );
-                //mateListView.setAdapter(adapter);
-                //Set the number of characters the user must type before the drop down list is shown
                 acTextView.setThreshold(1);
-                //Set the adapter
                 acTextView.setAdapter( adapter);
                 acTextView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                     @Override
@@ -247,7 +308,7 @@ public class MatesActivity extends AppCompatActivity implements NavigationView.O
 
         });
 
-        mProgressDialog.dismiss();
+
 
 
     }

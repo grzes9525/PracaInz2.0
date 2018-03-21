@@ -37,6 +37,7 @@ import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
+import com.pracainz20.Model.Invitation;
 import com.pracainz20.Model.Mapper.UserParameterMapper;
 import com.pracainz20.Model.Reminder;
 import com.pracainz20.Model.User;
@@ -145,14 +146,18 @@ public class UserProfileActivity extends AppCompatActivity implements Navigation
                         DatabaseReference reference = FirebaseDatabase.getInstance().getReference();
                         String usrId=FirebaseAuth.getInstance().getCurrentUser().getUid();
                     reference.child("Permissions").child(usrId)
-                            .child("accessToUser").push().setValue(getIntent().getStringExtra("USER_ID"));
+                            .child("accessToUser"+getIntent().getStringExtra("USER_ID")).setValue(getIntent().getStringExtra("USER_ID"));
                         Reminder reminder = new Reminder();
                         reminder.setAuthor_id(usrId);
                         reminder.setCreate_dt(new Date());
                         //reminder.setAuthor_name();
                         reminder.setType_reminder("requestToAddToFriends");
                     reference.child("MReminders").child(getIntent().getStringExtra("USER_ID")).push().setValue(reminder);
-
+                        Invitation invitation = new Invitation();
+                        invitation.setUserId(usrId);
+                        invitation.setCreateDt(new Date());
+                    reference.child("Mates").child("invitations")
+                            .child(getIntent().getStringExtra("USER_ID")).push().setValue(invitation);
                     }
                 })
 
