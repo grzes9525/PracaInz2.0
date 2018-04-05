@@ -22,6 +22,9 @@ android {
         main {
             res.srcDirs =
                     [
+                            'src/main/res/layouts/exercise',
+                            'src/main/res/layouts/product',
+                            'src/main/res/layouts/diary',
                             'src/main/res/layouts/reminders',
                             'src/main/res/layouts/dialogs',
                             'src/main/res/layouts/user_profile_layouts',

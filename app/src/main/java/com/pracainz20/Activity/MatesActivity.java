@@ -32,6 +32,7 @@ import com.google.firebase.database.ValueEventListener;
 import com.pracainz20.Adapter.MatesAdapter;
 import com.pracainz20.Adapter.ReminderAdapter;
 import com.pracainz20.Model.Invitation;
+import com.pracainz20.Model.Mate;
 import com.pracainz20.Model.Reminder;
 import com.pracainz20.Model.User;
 import com.pracainz20.R;
@@ -86,7 +87,7 @@ public class MatesActivity extends AppCompatActivity implements NavigationView.O
 
 
         mDatabase = FirebaseDatabase.getInstance();
-        mDatabaseReference = mDatabase.getReference().child("MUsersPublic");
+        mDatabaseReference = mDatabase.getReference().child("Mates");
         mDatabaseReference.keepSynced(true);
 
         acTextView = (AutoCompleteTextView) findViewById(R.id.editText_search_button);
@@ -222,15 +223,32 @@ public class MatesActivity extends AppCompatActivity implements NavigationView.O
 
         i=0;
         Log.d("onStart","wywołanie onStart");
-        mDatabaseReference.addChildEventListener(new ChildEventListener() {
+        mDatabaseReference.child(mUser.getUid()).addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
                 Log.d("poAddChild","po wywolaniu metody addChild "+i);
-                User user = dataSnapshot.getValue(User.class);
-                Log.d("user_wart",user.getFirstName()+" "+user.getLastName());
-                matesMap.put(i,dataSnapshot.getKey());
+                Mate mate = dataSnapshot.getValue(Mate.class);
+                Log.d("user_wart",mate.getFirstName()+" "+mate.getLastName());
+                matesMap.put(i,mate.getUserId());
+                Log.d("mateId",mate.getUserId());
+                DatabaseReference reference = FirebaseDatabase.getInstance().getReference();
+                Query query = reference.child("MUsersPublic")
+                        .child(mate.getUserId());
+                query.addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot1) {
+                        Log.d("mate1",dataSnapshot1.getValue(Mate.class).getFirstName());
+                    Mate mate1 = dataSnapshot1.getValue(Mate.class);
+                    matesList.add( mate1.getFirstName()+" "+mate1.getLastName());
+
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                });
                 Log.d("key",dataSnapshot.getKey());
-                matesList.add( user.getFirstName()+" "+user.getLastName());
                 i++;
                 Log.d("matesMap", String.valueOf(matesMap.size()));
                 adapter = new ArrayAdapter<String>(getApplicationContext(),android.R.layout.select_dialog_singlechoice,matesList );
@@ -244,10 +262,9 @@ public class MatesActivity extends AppCompatActivity implements NavigationView.O
                         Log.d("pos", String.valueOf(pos));
                         Log.d("userIDMAte",matesMap.get(pos));
                         DatabaseReference reference = FirebaseDatabase.getInstance().getReference();
-                        Query query = reference.child("Permissions")
+                        Query query = reference.child("Mates")
                                 .child(mUser.getUid())
-                                .child("accessToUser")
-                                .orderByValue()
+                                .orderByChild("userId")
                                 .equalTo(matesMap.get(pos));
                         query.addListenerForSingleValueEvent(new ValueEventListener() {
                             @Override

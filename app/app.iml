@@ -16,8 +16,8 @@
         </afterSyncTasks>
         <option name="ALLOW_USER_CONFIGURATION" value="false" />
         <option name="MANIFEST_FILE_RELATIVE_PATH" value="/src/main/AndroidManifest.xml" />
-        <option name="RES_FOLDER_RELATIVE_PATH" value="/src/main/res/layouts/reminders" />
-        <option name="RES_FOLDERS_RELATIVE_PATH" value="file://$MODULE_DIR$/src/main/res/layouts/reminders;file://$MODULE_DIR$/src/main/res/layouts/dialogs;file://$MODULE_DIR$/src/main/res/layouts/user_profile_layouts;file://$MODULE_DIR$/src/main/res/layouts/own_profile_layouts;file://$MODULE_DIR$/src/main/res/layouts/mate_layouts;file://$MODULE_DIR$/src/main/res/layouts/main_navigation;file://$MODULE_DIR$/src/main/res/layouts/welcome_layouts;file://$MODULE_DIR$/src/main/res/layouts/profile_layouts;file://$MODULE_DIR$/src/main/res/layouts/login_layouts;file://$MODULE_DIR$/src/main/res/layouts;file://$MODULE_DIR$/src/main/res" />
+        <option name="RES_FOLDER_RELATIVE_PATH" value="/src/main/res/layouts/exercise" />
+        <option name="RES_FOLDERS_RELATIVE_PATH" value="file://$MODULE_DIR$/src/main/res/layouts/exercise;file://$MODULE_DIR$/src/main/res/layouts/product;file://$MODULE_DIR$/src/main/res/layouts/diary;file://$MODULE_DIR$/src/main/res/layouts/reminders;file://$MODULE_DIR$/src/main/res/layouts/dialogs;file://$MODULE_DIR$/src/main/res/layouts/user_profile_layouts;file://$MODULE_DIR$/src/main/res/layouts/own_profile_layouts;file://$MODULE_DIR$/src/main/res/layouts/mate_layouts;file://$MODULE_DIR$/src/main/res/layouts/main_navigation;file://$MODULE_DIR$/src/main/res/layouts/welcome_layouts;file://$MODULE_DIR$/src/main/res/layouts/profile_layouts;file://$MODULE_DIR$/src/main/res/layouts/login_layouts;file://$MODULE_DIR$/src/main/res/layouts;file://$MODULE_DIR$/src/main/res" />
         <option name="ASSETS_FOLDER_RELATIVE_PATH" value="/src/main/assets" />
       </configuration>
     </facet>
@@ -64,6 +64,9 @@
       <sourceFolder url="file://$MODULE_DIR$/src/testDebug/java" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/src/testDebug/rs" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/src/testDebug/shaders" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/src/main/res/layouts/exercise" type="java-resource" />
+      <sourceFolder url="file://$MODULE_DIR$/src/main/res/layouts/product" type="java-resource" />
+      <sourceFolder url="file://$MODULE_DIR$/src/main/res/layouts/diary" type="java-resource" />
       <sourceFolder url="file://$MODULE_DIR$/src/main/res/layouts/reminders" type="java-resource" />
       <sourceFolder url="file://$MODULE_DIR$/src/main/res/layouts/dialogs" type="java-resource" />
       <sourceFolder url="file://$MODULE_DIR$/src/main/res/layouts/user_profile_layouts" type="java-resource" />

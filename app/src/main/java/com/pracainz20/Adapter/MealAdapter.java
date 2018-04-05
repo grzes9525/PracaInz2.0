@@ -1,0 +1,99 @@
+package com.pracainz20.Adapter;
+
+import android.content.Context;
+import android.content.Intent;
+import android.support.v7.widget.DefaultItemAnimator;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.Filter;
+import android.widget.Filterable;
+import android.widget.TextView;
+
+import com.pracainz20.Model.Invitation;
+import com.pracainz20.Model.Meal;
+import com.pracainz20.R;
+
+import java.util.List;
+
+/**
+ * Created by Grzechu on 04.04.2018.
+ */
+
+public class MealAdapter extends RecyclerView.Adapter<MealAdapter.ViewHolder> implements Filterable{
+
+    private Context context;
+    private List<Meal> meals;
+
+    public MealAdapter(Context context, List<Meal> meals) {
+        this.context = context;
+        this.meals = meals;
+    }
+
+    @Override
+    public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+
+        View view = LayoutInflater.from(parent.getContext())
+                .inflate(R.layout.card_view_meal, parent, false);
+
+
+        return new ViewHolder(view, context);
+    }
+
+    @Override
+    public void onBindViewHolder(ViewHolder holder, int position) {
+
+        Meal meal = meals.get(position);
+
+        holder.mealName.setText(meal.getName());
+
+        holder.addProduct.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //przenosi do aktywnosci wybierania produktów
+            }
+        });
+
+        holder.products.setHasFixedSize(true);
+        LinearLayoutManager layoutManager = new LinearLayoutManager(context);
+        holder.products.setLayoutManager(layoutManager);
+        holder.products.setItemAnimator(new DefaultItemAnimator());
+
+        RecyclerView.Adapter adapter = new MealProductAdapter(meal.getProducts());
+        adapter.notifyDataSetChanged();
+        holder.products.setAdapter(adapter);
+
+
+    }
+
+    @Override
+    public int getItemCount() {
+        return meals.size();
+    }
+
+    @Override
+    public Filter getFilter() {
+        return null;
+    }
+
+    public class ViewHolder extends RecyclerView.ViewHolder {
+
+        private TextView mealName;
+        private Button addProduct;
+        private RecyclerView products;
+
+        public ViewHolder(View itemView, Context ctx) {
+
+            super(itemView);
+
+            context = ctx;
+
+            mealName = (TextView) itemView.findViewById(R.id.meal_name);
+            addProduct = (Button) itemView.findViewById(R.id.add_product);
+            products = (RecyclerView) itemView.findViewById(R.id.my_meal_recycle_view_in_card_view);
+        }
+    }
+}

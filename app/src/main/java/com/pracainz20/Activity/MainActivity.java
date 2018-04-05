@@ -53,7 +53,10 @@ public class MainActivity extends AppCompatActivity
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        toolbar.setTitle("Tablica");
+        toolbar.setTitle("Co nowego?");
+
+
+
 
         mAuth = FirebaseAuth.getInstance();
         mUser = mAuth.getCurrentUser();
@@ -123,10 +126,9 @@ public class MainActivity extends AppCompatActivity
 
 
                         DatabaseReference reference = FirebaseDatabase.getInstance().getReference();
-                        Query query = reference.child("Permissions")
+                        Query query = reference.child("Mates")
                                         .child(mUser.getUid())
-                                        .child("accessToUser")
-                                        .orderByValue()
+                                        .orderByChild("userId")
                                         .equalTo(matesMap.get(pos));
                         query.addListenerForSingleValueEvent(new ValueEventListener() {
                             @Override
@@ -254,7 +256,11 @@ public class MainActivity extends AppCompatActivity
         }if (id == R.id.nav_reminder) {
             startActivity(new Intent(getApplicationContext(), ReminderActivity.class));
             finish();
+        }if (id == R.id.nav_diary) {
+            startActivity(new Intent(getApplicationContext(), DiaryActivity.class));
+            finish();
         }
+
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);

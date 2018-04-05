@@ -23,6 +23,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.MultiAutoCompleteTextView;
 import android.widget.TextView;
 
 import com.google.firebase.auth.FirebaseAuth;
@@ -99,7 +100,7 @@ public class PersonalActivity extends AppCompatActivity implements NavigationVie
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-        dateConfirmation = (TextView) findViewById(R.id.date_personal_textView);
+        dateConfirmation = (TextView) findViewById(R.id.date_diary_textView);
         nextDate = (ImageButton) findViewById(R.id.right_date_personal_button);
         previousDate = (ImageButton) findViewById(R.id.left_date_personal_button);
 
@@ -204,6 +205,7 @@ public class PersonalActivity extends AppCompatActivity implements NavigationVie
                     = recyclerView.findViewHolderForPosition(current_id);
             textViewValue
                     = (TextView) viewHolder.itemView.findViewById(R.id.textViewValue);
+
 
 
             alertDialogBuilderUserInput

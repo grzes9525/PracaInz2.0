@@ -44,7 +44,7 @@ public class PersonalDetailAdapter extends RecyclerView.Adapter<PersonalDetailAd
     public MyViewHolder onCreateViewHolder(ViewGroup parent,
                                            int viewType) {
         View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.card_view_diary, parent, false);
+                .inflate(R.layout.card_view_welcome, parent, false);
 
         view.setOnClickListener(PersonalActivity.getMyOnClickListener());
 
