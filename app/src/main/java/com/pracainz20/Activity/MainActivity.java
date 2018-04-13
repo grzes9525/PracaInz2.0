@@ -27,6 +27,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
+import com.pracainz20.Adapter.ChooseProductAdapter;
 import com.pracainz20.Model.User;
 import com.pracainz20.R;
 
@@ -54,9 +55,6 @@ public class MainActivity extends AppCompatActivity
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         toolbar.setTitle("Co nowego?");
-
-
-
 
         mAuth = FirebaseAuth.getInstance();
         mUser = mAuth.getCurrentUser();
@@ -115,7 +113,6 @@ public class MainActivity extends AppCompatActivity
                 //Set the number of characters the user must type before the drop down list is shown
                 acTextView.setThreshold(1);
                 //Set the adapter
-                acTextView.setAdapter( adapter);
                 acTextView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                     @Override
                     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {

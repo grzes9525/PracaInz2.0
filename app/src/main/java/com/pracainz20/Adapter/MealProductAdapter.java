@@ -26,6 +26,7 @@ public class MealProductAdapter extends RecyclerView.Adapter<MealProductAdapter.
     public MealProductAdapter(List<Product> products) {
         this.products = products;
 
+
     }
 
 
@@ -52,7 +53,7 @@ public class MealProductAdapter extends RecyclerView.Adapter<MealProductAdapter.
 
     @Override
     public int getItemCount() {
-        return products.size();
+       return products.size();
     }
 
     @Override

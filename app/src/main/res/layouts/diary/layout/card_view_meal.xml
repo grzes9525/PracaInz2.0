@@ -3,7 +3,7 @@
     xmlns:card_view="http://schemas.android.com/apk/res-auto"
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="250dp"
+    android:layout_height="wrap_content"
     android:focusable="true"
     android:foreground="?android:attr/selectableItemBackground"
     card_view:cardCornerRadius="4dp"
@@ -17,7 +17,7 @@
 
     <android.support.constraint.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:layout_gravity="bottom"
         >
 
@@ -25,11 +25,12 @@
             android:id="@+id/meal_name"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
             android:layout_marginEnd="8dp"
             android:layout_marginStart="8dp"
             android:layout_marginTop="8dp"
-            android:text=""
             android:gravity="center"
+            android:text="AAAAAAAAAAAA"
             card_view:layout_constraintBottom_toTopOf="@+id/add_product"
             card_view:layout_constraintEnd_toEndOf="parent"
             card_view:layout_constraintStart_toStartOf="parent"
@@ -42,33 +43,34 @@
             android:layout_gravity=""
             android:layout_marginEnd="8dp"
             android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
             android:text="Dodaj produkt"
             card_view:layout_constraintBottom_toTopOf="@+id/meal_recycle_view_in_card_view"
             card_view:layout_constraintEnd_toEndOf="parent"
-            card_view:layout_constraintStart_toStartOf="parent" />
+            card_view:layout_constraintStart_toStartOf="parent"
+            card_view:layout_constraintTop_toTopOf="parent" />
 
         <LinearLayout
             android:id="@+id/meal_recycle_view_in_card_view"
             android:layout_width="match_parent"
-            android:layout_height="150dp"
+            android:layout_height="wrap_content"
             android:layout_marginBottom="8dp"
             android:layout_marginEnd="8dp"
             android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
             card_view:layout_constraintBottom_toBottomOf="parent"
             card_view:layout_constraintEnd_toEndOf="parent"
-            card_view:layout_constraintStart_toStartOf="parent">
+            card_view:layout_constraintStart_toStartOf="parent"
+            card_view:layout_constraintTop_toBottomOf="@+id/add_product">
 
 
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/my_meal_recycle_view_in_card_view"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:scrollbars="vertical">
 
-                <android.support.v7.widget.RecyclerView
-                    android:id="@+id/my_meal_recycle_view_in_card_view"
-                    android:layout_width="match_parent"
-                    android:layout_height="150dp"
-                    android:scrollbars="vertical"
-                    >
-
-                </android.support.v7.widget.RecyclerView>
-
+            </android.support.v7.widget.RecyclerView>
 
 
         </LinearLayout>

@@ -176,7 +176,10 @@ public class DataLoader extends AppCompatActivity {
         if(k==2){
             Log.d("kkkk", String.valueOf(k));
             DatabaseReference reference = FirebaseDatabase.getInstance().getReference();
-            reference.child("Products").push().setValue(listProduct);
+            for(Product p : listProduct){
+                reference.child("Products").push().setValue(p);
+            }
+
         }
 
 

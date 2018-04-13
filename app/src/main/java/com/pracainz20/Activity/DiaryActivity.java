@@ -156,17 +156,8 @@ public class DiaryActivity extends AppCompatActivity implements NavigationView.O
                 .setPositiveButton("Wstaw", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialogBox, int id) {
                         Log.d("actionbar","execute");
-                        ///
-                        List<Product> products = new ArrayList<>();
-                        Product product = new Product();
-                        product.setId(1);
-                        product.setKcal(123f);
-                        product.setName("aasda");
-                        products.add(product);
-                        ///
 
                         Meal meal = new Meal();
-                        meal.setProducts(products);
                         meal.setDate(CalendarManagement.getDateToSaveDatabase(dayInDB));
                         meal.setName(autoCompleteTextView.getText().toString().trim());
                         FirebaseDatabase.getInstance().getReference()
@@ -208,14 +199,19 @@ public class DiaryActivity extends AppCompatActivity implements NavigationView.O
                 if(dataSnapshot.exists()){
 
                     Meal meal = dataSnapshot.getValue(Meal.class);
+                    if(meal.getProducts()==null){
+                        Product product = new Product();
+                        product.setName("");
+                        product.setKcal(0f);
+                        List<Product> list = new ArrayList<>();
+                        meal.setProducts(list);
+                    }
                     meals.add(meal);
-                    Log.d("meals",meals.get(0).getName());
-                    Log.d("meals",meals.get(0).getDate());
-                    Log.d("meals",meals.get(0).getProducts().get(0).getName());
 
 
 
-                    RecyclerView.Adapter adapter = new MealAdapter(c,meals);
+
+                    RecyclerView.Adapter adapter = new MealAdapter(c,meals,DiaryActivity.this);
 
                     RecyclerView recyclerView = (RecyclerView) findViewById(R.id.my_recycler_view_meal);
                     recyclerView.setHasFixedSize(true);
