@@ -113,6 +113,8 @@ public class MainActivity extends AppCompatActivity
                 //Set the number of characters the user must type before the drop down list is shown
                 acTextView.setThreshold(1);
                 //Set the adapter
+                acTextView.setAdapter( adapter);
+
                 acTextView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                     @Override
                     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -136,7 +138,7 @@ public class MainActivity extends AppCompatActivity
                                     Log.d("warunek ","if");
                                     Intent intent = new Intent(getApplicationContext(), MateProfileActivity.class);
                                     intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                                    intent.putExtra("MATE_ID", matesMap.get(pos));
+
                                     startActivity(intent);
 
                                 }else if(matesMap.get(pos).equals(mUser.getUid())){
@@ -150,6 +152,7 @@ public class MainActivity extends AppCompatActivity
                                     Intent intent = new Intent(getApplicationContext(), UserProfileActivity.class);
                                     intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                                     intent.putExtra("USER_ID", matesMap.get(pos));
+
                                     startActivity(intent);
                                 }
                             }

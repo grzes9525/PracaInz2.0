@@ -15,7 +15,10 @@
     <string name="action_settings">Wyloguj</string>
     <string name="title_activity_welcome">WelcomeActivity</string>
     <string name="title_activity_login">Sign in</string>
+    <string name="title_activity_choose_exercise">Cwiczenia</string>
+
     <string name="title_activity_mate">Mates</string>
+    <string name="title_activity_choose_exercise_activity">Cwiczenia</string>
 
     <!-- Strings related to login -->
     <string name="prompt_email">Email</string>

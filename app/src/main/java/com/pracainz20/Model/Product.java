@@ -10,7 +10,7 @@ public class Product {
     private Float protein;
     private Float lipid;
     private Float carb;
-    private Float kcal;
+    private Double kcal;
 
     public Integer getId() {
         return id;
@@ -52,11 +52,11 @@ public class Product {
         this.carb = carb;
     }
 
-    public Float getKcal() {
+    public Double getKcal() {
         return kcal;
     }
 
-    public void setKcal(Float kcal) {
+    public void setKcal(Double kcal) {
         this.kcal = kcal;
     }
 }

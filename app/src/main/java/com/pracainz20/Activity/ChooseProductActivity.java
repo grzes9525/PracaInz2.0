@@ -80,7 +80,11 @@ public class ChooseProductActivity extends AppCompatActivity{
                     if(counter==774 ){
                         Log.d("pList", String.valueOf(products.size()));
                         //RecyclerView.Adapter adapter = new ChooseProductAdapter(c,products,ChooseProductActivity.this);
-                        ChooseProductAdapter adapter1 = new ChooseProductAdapter(c,products,ChooseProductActivity.this);
+
+                        ChooseProductAdapter adapter1 = new ChooseProductAdapter(
+                                c
+                                ,products,ChooseProductActivity.this
+                                ,getIntent().getStringExtra("MEAL_ID"));
                         RecyclerView recyclerView = (RecyclerView) findViewById(R.id.my_recycler_view_choose_products);
                         recyclerView.setHasFixedSize(true);
 

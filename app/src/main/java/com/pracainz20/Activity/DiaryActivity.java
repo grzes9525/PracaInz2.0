@@ -36,10 +36,13 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.pracainz20.Adapter.ExerciseAdapter;
 import com.pracainz20.Adapter.MealAdapter;
 import com.pracainz20.Adapter.PersonalDetailAdapter;
+import com.pracainz20.Model.Exercise;
 import com.pracainz20.Model.Mapper.UserParameterMapper;
 import com.pracainz20.Model.Meal;
 import com.pracainz20.Model.Product;
@@ -63,10 +66,13 @@ public class DiaryActivity extends AppCompatActivity implements NavigationView.O
 
     private ImageButton nextDate;
     private ImageButton previousDate;
-    private Integer dayInDB = 0;
+    private int dayInDB = 0;
     private TextView dateConfirmation;
     private Context c=this;
-    private RecyclerView.LayoutManager layoutManager;
+    private RecyclerView.LayoutManager layoutManagerMeal;
+    private RecyclerView.LayoutManager layoutManagerExercise;
+    private RecyclerView recyclerViewMeal;
+    private RecyclerView recyclerViewExercise;
 
 
 
@@ -79,15 +85,17 @@ public class DiaryActivity extends AppCompatActivity implements NavigationView.O
         TabHost tabHost = (TabHost) findViewById(R.id.tab_host);
         tabHost.setup();
 
-        TabHost.TabSpec spec = tabHost.newTabSpec("Posiłki");
+        final TabHost.TabSpec spec = tabHost.newTabSpec("Posiłki");
         spec.setContent(R.id.tab_meal);
         spec.setIndicator("Posiłki");
         tabHost.addTab(spec);
 
-        spec = tabHost.newTabSpec("Trening");
-        spec.setContent(R.id.tab_exercise);
-        spec.setIndicator("Trening");
-        tabHost.addTab(spec);
+        TabHost.TabSpec spec1 = tabHost.newTabSpec("Trening");
+        spec1.setContent(R.id.tab_exercise);
+        spec1.setIndicator("Trening");
+        tabHost.addTab(spec1);
+
+
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -103,7 +111,8 @@ public class DiaryActivity extends AppCompatActivity implements NavigationView.O
 
         FloatingActionButton floatingActionButton = (FloatingActionButton) findViewById(R.id.add_meal);
 
-        layoutManager = new LinearLayoutManager(this);
+        layoutManagerMeal = new LinearLayoutManager(this);
+        layoutManagerExercise = new LinearLayoutManager(this);
 
         nextDate = (ImageButton) findViewById(R.id.right_date_diary_button);
         previousDate = (ImageButton) findViewById(R.id.left_date_diary_button);
@@ -127,10 +136,26 @@ public class DiaryActivity extends AppCompatActivity implements NavigationView.O
         floatingActionButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                addMeal();
+
+
+                if(recyclerViewMeal.isShown())
+                {
+                    addMeal();
+
+                }else {
+                    addExercise();
+                }
+
             }
         });
 
+    }
+
+    private void addExercise(){
+        Intent intent = new Intent(getApplicationContext(), ChooseExerciseActivity.class);
+        intent.putExtra("DAY_IN_DB",dayInDB);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        startActivity(intent);
     }
 
     private void addMeal(){
@@ -160,12 +185,14 @@ public class DiaryActivity extends AppCompatActivity implements NavigationView.O
                         Meal meal = new Meal();
                         meal.setDate(CalendarManagement.getDateToSaveDatabase(dayInDB));
                         meal.setName(autoCompleteTextView.getText().toString().trim());
-                        FirebaseDatabase.getInstance().getReference()
+                        DatabaseReference ref = FirebaseDatabase.getInstance().getReference()
                                 .child("Diaries")
                                 .child("meals")
                                 .child(FirebaseAuth.getInstance().getCurrentUser().getUid())
-                                .push()
-                                .setValue(meal);
+                                .push();
+                        meal.setPushId(ref.getKey());
+
+                        ref.setValue(meal);
                     }
                 })
 
@@ -185,44 +212,40 @@ public class DiaryActivity extends AppCompatActivity implements NavigationView.O
         super.onStart();
         dateConfirmation.setText(CalendarManagement.getDate(dayInDB));
 
+
+
+        final RecyclerView.Adapter[] adapter = new RecyclerView.Adapter[1];
+
         final List<Meal> meals = new ArrayList<>();
 
+        ////
+        final List<Exercise> exercises = new ArrayList<>();
         FirebaseDatabase.getInstance().getReference()
                 .child("Diaries")
-                .child("meals")
+                .child("trenings")
                 .child(FirebaseAuth.getInstance().getCurrentUser().getUid())
                 .orderByChild("date")
                 .equalTo(CalendarManagement.getDateToSaveDatabase(dayInDB)).addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
 
-                if(dataSnapshot.exists()){
 
-                    Meal meal = dataSnapshot.getValue(Meal.class);
-                    if(meal.getProducts()==null){
-                        Product product = new Product();
-                        product.setName("");
-                        product.setKcal(0f);
-                        List<Product> list = new ArrayList<>();
-                        meal.setProducts(list);
-                    }
-                    meals.add(meal);
-
-
-
-
-                    RecyclerView.Adapter adapter = new MealAdapter(c,meals,DiaryActivity.this);
-
-                    RecyclerView recyclerView = (RecyclerView) findViewById(R.id.my_recycler_view_meal);
-                    recyclerView.setHasFixedSize(true);
-
-                    recyclerView.setLayoutManager(layoutManager);
-                    recyclerView.setItemAnimator(new DefaultItemAnimator());
-
-                    recyclerView.setAdapter(adapter);
-
-
+                if(dataSnapshot.getValue()!=null){
+                    Exercise exercise = dataSnapshot.getValue(Exercise.class);
+                    exercises.add(exercise);
                 }
+
+                adapter[0] = new ExerciseAdapter(exercises, getApplicationContext());
+                recyclerViewExercise = (RecyclerView) findViewById(R.id.my_recycler_view_exercise);
+                recyclerViewExercise.setHasFixedSize(true);
+
+                recyclerViewExercise.setLayoutManager(layoutManagerExercise);
+                recyclerViewExercise.setItemAnimator(new DefaultItemAnimator());
+
+                recyclerViewExercise.setAdapter(adapter[0]);
+
+
+
 
             }
 
@@ -250,7 +273,89 @@ public class DiaryActivity extends AppCompatActivity implements NavigationView.O
 
             }
         });
+        adapter[0] = new ExerciseAdapter(exercises, getApplicationContext());
+        recyclerViewExercise = (RecyclerView) findViewById(R.id.my_recycler_view_exercise);
+        recyclerViewExercise.setHasFixedSize(true);
 
+        recyclerViewExercise.setLayoutManager(layoutManagerExercise);
+        recyclerViewExercise.setItemAnimator(new DefaultItemAnimator());
+
+        recyclerViewExercise.setAdapter(adapter[0]);
+        /////
+
+        FirebaseDatabase.getInstance().getReference()
+                .child("Diaries")
+                .child("meals")
+                .child(FirebaseAuth.getInstance().getCurrentUser().getUid())
+                .orderByChild("date")
+                .equalTo(CalendarManagement.getDateToSaveDatabase(dayInDB)).addChildEventListener(new ChildEventListener() {
+            @Override
+            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+
+
+                    if(dataSnapshot.getValue()!=null){
+                        Meal meal = dataSnapshot.getValue(Meal.class);
+                        if(meal.getProducts()==null){
+                            Product product = new Product();
+                            product.setName("");
+                            product.setKcal(0d);
+                            List<Product> list = new ArrayList<>();
+                            meal.setProducts(list);
+                        }
+                        meals.add(meal);
+                    }
+
+
+
+
+                    Log.d("meals",meals.get(0).getName());
+
+                    adapter[0] = new MealAdapter(c,meals,DiaryActivity.this);
+                    recyclerViewMeal = (RecyclerView) findViewById(R.id.my_recycler_view_meal);
+                    recyclerViewMeal.setHasFixedSize(true);
+
+                    recyclerViewMeal.setLayoutManager(layoutManagerMeal);
+                    recyclerViewMeal.setItemAnimator(new DefaultItemAnimator());
+
+                    recyclerViewMeal.setAdapter(adapter[0]);
+
+
+
+
+            }
+
+            @Override
+            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+                Log.d("child", "chand");
+
+            }
+
+            @Override
+            public void onChildRemoved(DataSnapshot dataSnapshot) {
+                Log.d("child", "remove");
+
+            }
+
+            @Override
+            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+                Log.d("child", "moved");
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                Log.d("child", "cancled");
+
+            }
+        });
+        adapter[0] = new MealAdapter(c,meals,DiaryActivity.this);
+        recyclerViewMeal = (RecyclerView) findViewById(R.id.my_recycler_view_meal);
+        recyclerViewMeal.setHasFixedSize(true);
+
+        recyclerViewMeal.setLayoutManager(layoutManagerMeal);
+        recyclerViewMeal.setItemAnimator(new DefaultItemAnimator());
+
+        recyclerViewMeal.setAdapter(adapter[0]);
 
 
     }

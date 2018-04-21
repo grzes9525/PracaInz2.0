@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+  >
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/number_series"
+        android:text="Liczba serii"
+        android:layout_marginTop="67dp"
+        android:layout_marginLeft="16dp"
+        android:textSize="20dp"
+        />
+    <EditText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/number_series_val"
+        android:layout_alignParentRight="true"
+        android:layout_marginRight="150dp"
+        android:layout_marginTop="50dp"
+        android:textSize="20dp"
+        android:text="0"/>
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/number_repetition"
+        android:text="Liczba powtórzeń"
+        android:layout_below="@+id/number_series"
+        android:layout_marginTop="24dp"
+        android:layout_marginLeft="16dp"
+
+        android:textSize="20dp"/>
+
+    <EditText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/number_repetition_val"
+        android:textSize="20dp"
+        android:text="0"
+        android:layout_marginTop="6dp"
+        android:layout_below="@id/number_series_val"
+        android:layout_alignParentRight="true"
+        android:layout_marginRight="150dp"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/weight"
+        android:textSize="20dp"
+        android:text="Ciężar"
+        android:layout_below="@id/number_repetition"
+        android:layout_marginLeft="16dp"
+
+        android:layout_marginTop="24dp"/>
+    <EditText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/weight_val"
+        android:text="0"
+        android:textSize="20dp"
+        android:layout_below="@id/number_repetition_val"
+        android:layout_alignParentRight="true"
+        android:layout_marginTop="6dp"
+        android:layout_marginRight="150dp"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:id="@+id/info"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="8dp"
+        android:text="Ustawienia opcjonalne"
+        android:layout_below="@id/weight_val"/>
+
+    <android.support.constraint.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="230dp"
+        android:id="@+id/serie_layout"
+        android:layout_below="@+id/info"
+        android:layout_marginTop="16dp"
+        >
+       <android.support.v7.widget.RecyclerView
+           android:layout_width="match_parent"
+           android:layout_height="wrap_content"
+           android:id="@+id/recycleView_exercise_detail">
+
+       </android.support.v7.widget.RecyclerView>
+
+
+
+    </android.support.constraint.ConstraintLayout>
+
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/add_exercise_info"
+        android:layout_below="@+id/serie_layout"
+        android:text="Dodaj ćwiczenie"/>
+
+
+</RelativeLayout>

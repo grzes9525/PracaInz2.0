@@ -1,0 +1,83 @@
+<android.support.v7.widget.CardView xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/card_view_product"
+    xmlns:card_view="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="60dp"
+    android:focusable="true"
+    android:foreground="?android:attr/selectableItemBackground"
+    card_view:cardCornerRadius="4dp"
+    card_view:cardBackgroundColor="@color/color_white"
+    card_view:cardElevation="2dp"
+    card_view:cardUseCompatPadding="true">
+
+
+   <RelativeLayout
+       android:layout_width="match_parent"
+       android:layout_height="match_parent">
+       <TextView
+           android:layout_width="wrap_content"
+           android:layout_height="wrap_content"
+           android:text="Seria"
+           android:layout_centerVertical="true"
+           android:textSize="20dp"
+           android:id="@+id/serie"
+
+           />
+       <TextView
+           android:layout_width="wrap_content"
+           android:layout_height="wrap_content"
+           android:layout_centerInParent="true"
+           android:layout_toRightOf="@+id/serie"
+           android:layout_marginLeft="1dp"
+           android:id="@+id/number_series_detail"
+           android:textSize="20dp"
+           android:text="0"/>
+       <TextView
+           android:layout_width="wrap_content"
+           android:layout_height="wrap_content"
+           android:layout_centerInParent="true"
+           android:layout_toRightOf="@+id/number_series_detail"
+           android:layout_marginLeft="8dp"
+           android:id="@+id/number_repetition_detail"
+           android:textSize="20dp"
+           android:text="Liczba powtórzeń"/>
+
+       <EditText
+           android:layout_width="wrap_content"
+           android:layout_height="wrap_content"
+           android:layout_centerInParent="true"
+           android:layout_toRightOf="@+id/number_repetition_detail"
+           android:layout_marginLeft="1dp"
+           android:id="@+id/number_repetition_detail_val"
+           android:textSize="20dp"
+           android:text="0"/>
+
+       <TextView
+           android:layout_width="wrap_content"
+           android:layout_height="wrap_content"
+           android:layout_centerInParent="true"
+           android:layout_toRightOf="@+id/number_repetition_detail_val"
+           android:layout_marginLeft="8dp"
+           android:id="@+id/weight_detail"
+           android:textSize="20dp"
+           android:text="Waga"/>
+
+       <EditText
+           android:layout_width="wrap_content"
+           android:layout_height="wrap_content"
+           android:layout_centerInParent="true"
+           android:layout_toRightOf="@+id/weight_detail"
+           android:layout_marginLeft="1dp"
+           android:id="@+id/weight_detail_val"
+
+           android:textSize="20dp"
+           android:text="0"/>
+
+
+   </RelativeLayout>
+
+</android.support.v7.widget.CardView>
+
+

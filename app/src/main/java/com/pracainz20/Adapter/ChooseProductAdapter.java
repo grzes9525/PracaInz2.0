@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.database.DataSetObserver;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.RecyclerView;
@@ -19,9 +20,16 @@ import android.widget.Filterable;
 import android.widget.ListAdapter;
 import android.widget.TextView;
 
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
+import com.pracainz20.Activity.MateProfileActivity;
+import com.pracainz20.Activity.OwnProfileActivity;
+import com.pracainz20.Activity.UserProfileActivity;
 import com.pracainz20.Model.Mapper.UserParameterMapper;
 import com.pracainz20.Model.Meal;
 import com.pracainz20.Model.Product;
@@ -47,12 +55,14 @@ public class ChooseProductAdapter extends RecyclerView.Adapter<ChooseProductAdap
     private List<Product> products;
     private List<Product> productsFiltered;
     private Activity activity;
+    private String mealId;
 
-    public ChooseProductAdapter(Context context, List<Product> products, Activity activity) {
+    public ChooseProductAdapter(Context context, List<Product> products, Activity activity, String mealId) {
         this.context = context;
         this.products = products;
         this.productsFiltered = products;
         this.activity = activity;
+        this.mealId = mealId;
     }
 
     @Override
@@ -90,6 +100,8 @@ public class ChooseProductAdapter extends RecyclerView.Adapter<ChooseProductAdap
                 if(charSequence!=null)
                 {
                     charString = charSequence.toString();
+                    Log.d("char",charString);
+
 
                 }
 
@@ -181,6 +193,7 @@ public class ChooseProductAdapter extends RecyclerView.Adapter<ChooseProductAdap
         private TextView carb_val1;
         private TextView fat_val1;
         private TextView kcal_val1;
+        private Product productToSave;
 
 
         public ViewHolder(View itemView, Context ctx) {
@@ -193,6 +206,9 @@ public class ChooseProductAdapter extends RecyclerView.Adapter<ChooseProductAdap
             carbVal = (TextView) itemView.findViewById(R.id.choose_product_carb);
             fatVal = (TextView) itemView.findViewById(R.id.choose_product_fat);
             kalVal = (TextView) itemView.findViewById(R.id.choose_product_kal);
+            productToSave = new Product();
+
+
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -223,6 +239,8 @@ public class ChooseProductAdapter extends RecyclerView.Adapter<ChooseProductAdap
                         public void afterTextChanged(Editable s) {
                             Log.d("refresh","execute");
                             Float portion;
+
+
                             if(portion_val.getText().toString().isEmpty()){
                                portion=0f;
                             }else{
@@ -246,6 +264,9 @@ public class ChooseProductAdapter extends RecyclerView.Adapter<ChooseProductAdap
                             kcal_val1 = (TextView) mView.findViewById(R.id.dialog_kcal_val);
                             Double kcal = Double.parseDouble(kalVal.getText().toString().trim());
                             kcal_val1.setText(String.valueOf(new DecimalFormat("##.#").format(portion/100*kcal)));
+
+                            productToSave.setName(productName.getText().toString().trim());
+                            productToSave.setKcal(Double.valueOf(new DecimalFormat("##.#").format(portion/100*kcal)));
                         }
                     });
 
@@ -258,6 +279,49 @@ public class ChooseProductAdapter extends RecyclerView.Adapter<ChooseProductAdap
                             .setCancelable(false)
                             .setPositiveButton("Wstaw", new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface dialogBox, int id) {
+                                    Query query = FirebaseDatabase.getInstance().getReference()
+                                            .child("Diaries")
+                                            .child("meals")
+                                            .child(FirebaseAuth.getInstance().getCurrentUser().getUid())
+                                            .child(mealId);
+                                    Log.d("mealId",mealId);
+                                    query.addListenerForSingleValueEvent(new ValueEventListener() {
+                                        @Override
+                                        public void onDataChange(DataSnapshot dataSnapshot) {
+                                            if(dataSnapshot.exists()){
+                                                List<Product> products;
+                                                Meal meal = dataSnapshot.getValue(Meal.class);
+                                                if(meal.getProducts()==null){
+                                                   products = new ArrayList<>();
+
+                                                }else {
+                                                    products= meal.getProducts();
+                                                }
+                                                products.add(productToSave);
+
+                                                Log.d("meal",meal.getName());
+                                                meal.setProducts(products);
+                                                FirebaseDatabase.getInstance().getReference()
+                                                        .child("Diaries")
+                                                        .child("meals")
+                                                        .child(FirebaseAuth.getInstance().getCurrentUser().getUid())
+                                                        .child(mealId)
+                                                        .setValue(meal);
+                                            }
+
+                                        }
+
+                                        @Override
+                                        public void onCancelled(DatabaseError databaseError) {
+
+                                        }
+                                    });
+
+                                    Log.d("products",products.get(0).getName());
+                                    Log.d("products",products.get(0).getKcal().toString());
+                                    Log.d("products",products.toString());
+
+
 
 
 

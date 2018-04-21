@@ -55,7 +55,7 @@ public class MealAdapter extends RecyclerView.Adapter<MealAdapter.ViewHolder> im
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
 
-        Meal meal = meals.get(position);
+        final Meal meal = meals.get(position);
 
         holder.mealName.setText(meal.getName());
 
@@ -63,6 +63,7 @@ public class MealAdapter extends RecyclerView.Adapter<MealAdapter.ViewHolder> im
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(activity, ChooseProductActivity.class);
+                intent.putExtra("MEAL_ID", meal.getPushId());
                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 activity.startActivity(intent);
             }
